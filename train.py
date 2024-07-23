@@ -54,7 +54,7 @@ model = Model(inputs=base_model.input, outputs=predictions)
 
 model.compile(optimizer=Adam(learning_rate=0.0001), loss='categorical_crossentropy', metrics=['accuracy'])
 
-model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=10, batch_size=32)
+model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=10, batch_size=32, verbose=1)
 
 # Save the model
 model.save('face_recognition_vgg16.h5')
