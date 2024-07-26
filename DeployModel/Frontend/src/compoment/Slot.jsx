@@ -6,6 +6,9 @@ import PageOne from "./Pages/PageOne";
 
 const Slot = () => {
     const [page, setPage] = useState("pageone");
+    const [isRunning, setIsRunning]= useState(false)
+
+
     const [numberSlot, setNumberSlot] = useState(1);
     const [nameSubject, setNameSubject] = useState("Math");
     const [nameClass, setNameClass] = useState("5C");
@@ -15,6 +18,7 @@ const Slot = () => {
     const nextPage = (page) => {
         setPage(page);
     };
+
     const nextPageNumber = (pageNumber) => {
         switch (pageNumber) {
             case "1":
@@ -39,8 +43,9 @@ const Slot = () => {
             <p className="slot-name">Subject: {nameSubject}</p>
             <p className="slot-class">Class: {nameClass}</p>
             <p className="slot-date">Date: {date.toDateString()}</p>
+            <button className="btn" onClick={() => { setIsRunning(true) }}>Run</button>
         </div>
-        <MultiStepProgressBar page={page} onPageNumberClick={nextPageNumber} className="class-attendent" />
+        <MultiStepProgressBar page={page} onPageNumberClick={nextPageNumber} isRunning={isRunning} className="class-attendent" />
         {
             {
                 pageone: <PageOne onButtonClick={nextPage} />,

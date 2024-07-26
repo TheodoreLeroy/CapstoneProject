@@ -72,3 +72,9 @@
         font-size: 6px;
     }
 }
+
+.indexedStep.accomplished {
+    background-color: #1677ff;
+    color: white;
+    border-style: none;
+}
