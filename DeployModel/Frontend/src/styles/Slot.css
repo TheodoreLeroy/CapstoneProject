@@ -1,10 +1,17 @@
 .slot-container{
+    width: 100%;
+}
+
+.class-attendent{
+    width: 75%;
+}
+.slot-infomation{
     display: flex;
     flex-direction: column;
     margin: 50px auto;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 50%;
+    width: 75%;
     max-height: 200px;
 }

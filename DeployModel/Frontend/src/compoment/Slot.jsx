@@ -2,9 +2,15 @@ import React from "react";
 import "../styles/Slot.css"
 import { useState } from "react";
 import MultiStepProgressBar from "./MultiStepProgressBar";
+import PageOne from "./Pages/PageOne";
 
-const Slot = () =>{
+const Slot = () => {
     const [page, setPage] = useState("pageone");
+    const [numberSlot, setNumberSlot] = useState(1);
+    const [nameSubject, setNameSubject] = useState("Math");
+    const [nameClass, setNameClass] = useState("5C");
+    const [date, setDate] = useState(new Date());
+
 
     const nextPage = (page) => {
         setPage(page);
@@ -28,17 +34,19 @@ const Slot = () =>{
         }
     };
     return (<div className="slot-container">
-        <p className="slot-number">Slot: 1</p>
-        <p className="slot-name">Subject: </p>
-        <p className="slot-class">Class: </p>
-        <p className="slot-date">Date: </p>
-        <MultiStepProgressBar page={page} onPageNumberClick={nextPageNumber} />
+        <div className="slot-infomation">
+            <p className="slot-number">Slot: {numberSlot}</p>
+            <p className="slot-name">Subject: {nameSubject}</p>
+            <p className="slot-class">Class: {nameClass}</p>
+            <p className="slot-date">Date: {date.toDateString()}</p>
+        </div>
+        <MultiStepProgressBar page={page} onPageNumberClick={nextPageNumber} className="class-attendent" />
         {
             {
                 pageone: <PageOne onButtonClick={nextPage} />,
-                pagetwo: <PageTwo onButtonClick={nextPage} />,
-                pagethree: <PageThree onButtonClick={nextPage} />,
-                pagefour: <PageFour />,
+                pagetwo: <PageOne onButtonClick={nextPage} />,
+                pagethree: <PageOne onButtonClick={nextPage} />,
+                pagefour: <PageOne />,
             }[page]
         }
     </div>)

@@ -1,75 +1,44 @@
-import React from "react";
+import React, {useState} from "react";
 import "./PageOne.css";
 
 const PageOne = ({ onButtonClick }) => {
+    const [numberAttendet, setNumberAttendet] = useState(3);
+    const [totalStudent, setTotalStudent] = useState(3);
 
     return (
         <main
-            className="pt5 black-80 center"
-            style={{ maxWidth: "40%", maxHeight: "30%", margin: "auto" }}
+            className="class-container"
         >
-            <form className="measure">
-                <h2>Welcome! First things first...</h2>
-                <p style={{ color: "#C0C0C0" }}>You can always change them later.</p>
-                <fieldset id="sign_up" className="ba b--transparent ph0 mh0">
-                    <div className="mt3">
-                        <label
-                            className="db lh-copy f6 mb1"
-                            htmlFor="full-name"
-                            style={{ textAlign: "left" }}
-                        >
-                            Full Name
-                        </label>
-                        <input
-                            className="f6 br2 ph3 pv2 mb2 dib black w-100"
-                            type="text"
-                            name="full-name"
-                            id="full-name"
-                            size="30"
-                            placeholder="Steve Jobs"
-                            style={{
-                                borderStyle: "solid",
-                                borderWidth: "1px",
-                                borderColor: "#EAEEF5",
-                            }}
-                        />
-                    </div>
-                    <div className="mv3">
-                        <label
-                            className="db lh-copy f6 mb1"
-                            htmlFor="display-name"
-                            style={{ textAlign: "left" }}
-                        >
-                            Display Name
-                        </label>
-                        <input
-                            className="f6 br2 ph3 pv2 mb2 dib black w-100"
-                            type="text"
-                            name="display-name"
-                            id="display-name"
-                            placeholder="Steve"
-                            style={{
-                                borderStyle: "solid",
-                                borderWidth: "1px",
-                                borderColor: "#EAEEF5",
-                            }}
-                        />
-                    </div>
-                </fieldset>
-                <div>
-                    <input
-                        className="f6 grow br2 ph3 pv2 mb2 dib white"
-                        style={{
-                            borderStyle: "none",
-                            width: "100%",
-                            backgroundColor: "#664DE5",
-                        }}
-                        type="submit"
-                        value="Create Workspace"
-                        onClick={() => onButtonClick("pagetwo")}
-                    />
-                </div>
-            </form>
+            <div style={{width: "100%"}}>
+                <h2>Class attendent</h2>
+                <p>attendented: {numberAttendet}/{totalStudent}</p>
+                <table className="table-container">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Id</th>
+                            <th>Image</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>                          
+                            <td>Vũ</td>
+                            <td>HE161744</td>
+                            <td><img src="path/to/image1.jpg" alt="Member 1" /></td>
+                        </tr>
+                        <tr>
+                            <td>Lương</td>
+                            <td>HE163772</td>
+                            <td><img src="path/to/image2.jpg" alt="Member 2"/></td>                           
+                        </tr>
+                        <tr>
+                            <td>Nguyễn</td>
+                            <td>HE163853</td>
+                            <td><img src="path/to/image3.jpg" alt="Member 3"/></td>                           
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </main>
     );
 };
