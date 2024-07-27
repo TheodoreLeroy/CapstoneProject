@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+
 import "../styles/Slot.css"
-import { useState } from "react";
 import MultiStepProgressBar from "./MultiStepProgressBar";
+import api from "../api";
 import PageOne from "./Pages/PageOne";
 
 const Slot = () => {
@@ -13,6 +14,25 @@ const Slot = () => {
     const [nameSubject, setNameSubject] = useState("Math");
     const [nameClass, setNameClass] = useState("5C");
     const [date, setDate] = useState(new Date());
+
+    const [students, setStudents] = useState([]);
+
+    useEffect(()=>{
+        getStudents();
+    }, [])
+
+    const getStudents = () =>{
+        api.get("/api/user/")
+        .then((res) => res.data)
+        .then((data) => {setStudents(data); console.log(data);})
+        .catch((e) =>{
+            alert(e)
+        })
+    }
+
+    const getSlotInfomation=()=>{
+        
+    }
 
 
     const nextPage = (page) => {
@@ -48,9 +68,9 @@ const Slot = () => {
         <MultiStepProgressBar page={page} onPageNumberClick={nextPageNumber} isRunning={isRunning} className="class-attendent" />
         {
             {
-                pageone: <PageOne onButtonClick={nextPage} />,
-                pagetwo: <PageOne onButtonClick={nextPage} />,
-                pagethree: <PageOne onButtonClick={nextPage} />,
+                pageone: <PageOne students={students} />,
+                pagetwo: <PageOne students={students} />,
+                pagethree: <PageOne students={students} />,
                 pagefour: <PageOne />,
             }[page]
         }

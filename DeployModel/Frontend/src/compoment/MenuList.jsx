@@ -35,7 +35,7 @@ const items = [
 ];
 
 const MenuList = () => {
-    const [current, setCurrent] = useState('home');
+    const [current, setCurrent] = useState("home");
 
     const navigate = useNavigate()
 
