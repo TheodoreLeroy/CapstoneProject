@@ -2,18 +2,10 @@ from django.db import models
 from django import forms
 
 # Create your models here.
-class User(models.Model):
-    UserId = models.IntegerField(primary_key=True, db_column="User ID")
-    Email = models.EmailField()
-    Password = models.CharField(widget=forms.PasswordInput)
-    UserName = models.CharField(max_length=255)    
-
-    def __str__(self) -> str:
-        return self.UserId + '  ' + self.UserName + '  ' + self.Email
 
 class Student(models.Model):
     StuId = models.IntegerField(primary_key=True, db_column="Student ID")
-    StuName = models.CharField(max_length=255, db_column="Student name")
+    StuName = models.CharField(max_length=50, db_column="Student name")
     StuImg = models.ImageField()
 
     def __str__(self) -> str:
@@ -21,7 +13,56 @@ class Student(models.Model):
     
 class Teacher(models.Model):
     TeachId = models.IntegerField(primary_key=True, db_column="Teacher ID")
-    TeachName = models.models.CharField(_("Teacher name"), max_length=255)
-    
+    TeachName = models.models.CharField(_("Teacher name"), max_length=50)
+    Email = models.EmailField()
+    Pass = models.CharField(widget=forms.PasswordInput)
+
     def __str__(self) -> str:
         return self.TeachId + '     ' + self.TeachName
+    
+class Class(models.Model):
+    ClassId = models.IntegerField(primary_key=True)
+    Subject = models.CharField(max_length=50)
+    Semester = models.CharField(max_length=50)
+    time_start = models.DateTimeField()
+    time_end = models.DateTimeField()
+
+    def __str__(self) -> str:
+        return super().__str__()
+    
+
+class Slot(models.Model):
+    SlotId = models.IntegerField(primary_key=True)
+    StudentId = models.ForeignKey(Student, on_detele=models.CASCADE)
+
+    def __str__(self) -> str:
+        return super().__str__()
+    
+
+    
+class TimeFrame(models.Model):
+    Id = models.IntegerField(primary_key=True)
+    SlotId = models.ForeignKey(Slot, on_delete=models.CASCADE)
+    Time = models.DateTimeField()
+    image = models.ImageField()
+
+    def __str__(self) -> str:
+        return super().__str__()
+    
+class AttendanceManager(models.Model):
+    SlotId = models.ForeignKey(Slot, on_delete=models.CASCADE)
+    StudentId = models.ForeignKey(Student, on_delete=models.CASCADE)
+    ClassId = models.ForeignKey(Class, on_delete=models.CASCADE)
+    TimeFrameId = models.ForeignKey(TimeFrame, on_delete=models.CASCADE)
+    Attend = models.BinaryField()
+
+    def __str__(self) -> str:
+        return super().__str__()
+    
+class Log(models.Model):
+    SlotId = models.ForeignKey(Slot, on_delete=models.CASCADE)
+    StudentId = models.ForeignKey(Student, on_delete=models.CASCADE)
+    TimeFrameId = models.ForeignKey(TimeFrame, on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return super().__str__()
