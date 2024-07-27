@@ -1,13 +1,12 @@
 from django.shortcuts import render
 
 from django.shortcuts import render
-from .models import User
+from .models import Student
+from rest_framework import generics
+from .serializers import StdSerializers
 
-def login_view(request):
-    if request.method == 'POST':
-        # Handle form submission (validate credentials, log in the user, etc.)
-        # You'll need to implement this part based on your authentication logic.
-        pass
-    else:
-        form = User()
-    return render(request, 'users/login.html', {'form': form})
+class UserList(generics.ListCreateAPIView):
+    serializer_class = StdSerializers
+
+    def get_queryset(self):
+        return Student.objects.all()

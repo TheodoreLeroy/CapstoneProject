@@ -13,9 +13,9 @@ class Student(models.Model):
     
 class Teacher(models.Model):
     TeachId = models.IntegerField(primary_key=True, db_column="Teacher ID")
-    TeachName = models.models.CharField(_("Teacher name"), max_length=50)
+    TeachName = models.CharField(("Teacher name"), max_length=50)
     Email = models.EmailField()
-    Pass = models.CharField(widget=forms.PasswordInput)
+    Pass = models.CharField(forms.PasswordInput, max_length=50)
 
     def __str__(self) -> str:
         return self.TeachId + '     ' + self.TeachName
@@ -33,7 +33,7 @@ class Class(models.Model):
 
 class Slot(models.Model):
     SlotId = models.IntegerField(primary_key=True)
-    StudentId = models.ForeignKey(Student, on_detele=models.CASCADE)
+    StudentId = models.ForeignKey(Student, on_delete=models.CASCADE)
 
     def __str__(self) -> str:
         return super().__str__()
