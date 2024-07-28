@@ -10,6 +10,6 @@ class StdSerializers(serializers.ModelSerializer):
 class SlotInfomationSerializers(serializers.ModelSerializer):
     class Meta:
         model = Slot
-        fields = ["StuId", "StuName", "StuImg"]
+        fields = ["SlotId", "SlotTime", "SlotSubject"]
 
     

@@ -22,7 +22,6 @@ class Teacher(models.Model):
     
 class Class(models.Model):
     ClassId = models.IntegerField(primary_key=True)
-    Subject = models.CharField(max_length=50)
     Semester = models.CharField(max_length=50)
     time_start = models.DateTimeField()
     time_end = models.DateTimeField()
@@ -33,8 +32,8 @@ class Class(models.Model):
 
 class Slot(models.Model):
     SlotId = models.IntegerField(primary_key=True)
-    StudentId = models.ForeignKey(Student, on_delete=models.CASCADE)
-
+    SlotTime = models.DateField(auto_now=True)
+    SlotSubject = models.CharField(max_length=50)
     def __str__(self) -> str:
         return super().__str__()
     

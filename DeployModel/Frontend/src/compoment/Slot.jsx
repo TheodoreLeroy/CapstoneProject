@@ -5,35 +5,34 @@ import MultiStepProgressBar from "./MultiStepProgressBar";
 import api from "../api";
 import PageOne from "./Pages/PageOne";
 
-const Slot = () => {
+const Slot = (params) => {
     const [page, setPage] = useState("pageone");
-    const [isRunning, setIsRunning]= useState(false)
-
+    const [isRunning, setIsRunning] = useState(false)
 
     const [numberSlot, setNumberSlot] = useState(1);
-    const [nameSubject, setNameSubject] = useState("Math");
-    const [nameClass, setNameClass] = useState("5C");
-    const [date, setDate] = useState(new Date());
 
+    const [slotInfomation, setSlotInfomation] = useState([])
     const [students, setStudents] = useState([]);
 
-    useEffect(()=>{
+    useEffect(() => {
         getStudents();
     }, [])
 
-    const getStudents = () =>{
+    const getStudents = () => {
         api.get("/api/user/")
-        .then((res) => res.data)
-        .then((data) => {setStudents(data); console.log(data);})
-        .catch((e) =>{
-            alert(e)
-        })
+            .then((res) => res.data)
+            .then((data) => { setStudents(data); })
+            .catch((e) => {
+                alert(e)
+            })
+        api.get("/api/slot/")
+            .then((res) => res.data)
+            .then((data) => { setSlotInfomation(data[0]); console.log(data); })
+            .catch((e) => {
+                alert(e)
+            })
+            
     }
-
-    const getSlotInfomation=()=>{
-        
-    }
-
 
     const nextPage = (page) => {
         setPage(page);
@@ -59,18 +58,18 @@ const Slot = () => {
     };
     return (<div className="slot-container">
         <div className="slot-infomation">
-            <p className="slot-number">Slot: {numberSlot}</p>
-            <p className="slot-name">Subject: {nameSubject}</p>
-            <p className="slot-class">Class: {nameClass}</p>
-            <p className="slot-date">Date: {date.toDateString()}</p>
+            <p className="slot-number">Slot: {slotInfomation.SlotId}</p>
+            <p className="slot-name">Subject: {slotInfomation.SlotSubject}</p>
+            <p className="slot-class">Class: 5</p>
+            <p className="slot-date">Date: {slotInfomation.SlotTime}</p>
             <button className="btn" onClick={() => { setIsRunning(true) }}>Run</button>
         </div>
         <MultiStepProgressBar page={page} onPageNumberClick={nextPageNumber} isRunning={isRunning} className="class-attendent" />
         {
             {
-                pageone: <PageOne students={students} />,
-                pagetwo: <PageOne students={students} />,
-                pagethree: <PageOne students={students} />,
+                pageone: <PageOne students={students} onButtonClick={nextPage} />,
+                pagetwo: <PageOne students={students} onButtonClick={nextPage} />,
+                pagethree: <PageOne students={students} onButtonClick={nextPage} />,
                 pagefour: <PageOne />,
             }[page]
         }

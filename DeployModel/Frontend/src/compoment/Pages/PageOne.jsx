@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import "./PageOne.css";
 
-const PageOne = ({ students }) => {
+const PageOne = ({ students, onButtonClick }) => {
     const [numberAttendet, setNumberAttendet] = useState(3);
     const [totalStudent, setTotalStudent] = useState(0);
     const [linkImage, setLinkImage] = useState("../../../../DeployModel/Backend/");
 
     useEffect(() => {
         getTotalStudent();
-    }, Number);
+    });
 
     const getTotalStudent = () =>{
         setTotalStudent(students.length);
@@ -24,10 +24,15 @@ const PageOne = ({ students }) => {
                 <p>attendented: {numberAttendet}/{totalStudent}</p>
                 <table className="table-container">
                     <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Id</th>
+                            <th>Image</th>
+                        </tr>
                     </thead>
                     <tbody>
                         {students?.map((student) =>(
-                            <tr>
+                            <tr key={student.StuId}>
                                 <td>{student.StuId}</td>
                                 <td>{student.StuName}</td>
                                 <td><img src={linkImage.concat(student.StuImg.toString())} alt="Member 1" /></td>

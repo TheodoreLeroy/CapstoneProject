@@ -3,19 +3,23 @@ import Login from "./pages/Login"
 import Home from "./pages/Home"
 import NotFound from "./pages/NotFound"
 import Register from "./pages/Register"
+import Attendent from "./pages/Attendent"
 
 function App() {
 
   return (
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login></Login>} />
-          <Route path="/register" element={<Register></Register>} />
-          <Route path="/home" element={<Home />} />
-          <Route path="*" element={<NotFound></NotFound>}></Route>
-        </Routes>
-      </BrowserRouter>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login></Login>} />
+        <Route path="/register" element={<Register></Register>} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/attendent" element={<Attendent />}>
+          <Route path=":class/:subject" element={<Attendent />} />
+        </Route>
+        <Route path="*" element={<NotFound></NotFound>}></Route>
+      </Routes>
+    </BrowserRouter>
   )
 }
 
