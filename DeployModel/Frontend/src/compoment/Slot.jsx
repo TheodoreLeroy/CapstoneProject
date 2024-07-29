@@ -25,12 +25,12 @@ const Slot = (params) => {
             .catch((e) => {
                 alert(e)
             })
-        api.get("/api/slot/")
-            .then((res) => res.data)
-            .then((data) => { setSlotInfomation(data[0]); console.log(data); })
-            .catch((e) => {
-                alert(e)
-            })
+        // api.get("/api/slot/")
+        //     .then((res) => res.data)
+        //     .then((data) => { setSlotInfomation(data[0]); console.log(data); })
+        //     .catch((e) => {
+        //         alert(e)
+        //     })
             
     }
 

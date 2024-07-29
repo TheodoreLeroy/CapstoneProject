@@ -1,0 +1,7 @@
+<!-- add_class.html -->
+<h2>Add Class</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Add Class</button>
+</form>
