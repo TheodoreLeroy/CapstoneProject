@@ -1,0 +1,7 @@
+<!-- class_list.html -->
+<h2>Class List</h2>
+<ul>
+    {% for class in classes %}
+    <li>{{ class.className }} - {{ class.Semester }} - {{ class.DateTime }}</li>
+    {% endfor %}
+</ul>
