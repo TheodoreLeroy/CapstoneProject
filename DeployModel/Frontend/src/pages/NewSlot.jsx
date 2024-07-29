@@ -1,20 +1,24 @@
-import FormClass from "../compoment/FormClass"
-import "../styles/Home.css";
-import "../styles/Sidebar.css";
+import FormSlot from "../compoment/FormSlot"
 import Logo from "../compoment/Logo";
 import MenuList from "../compoment/MenuList";
+
+import { useParams } from "react-router-dom";
 import { Layout } from "antd";
 const { Sider } = Layout
 
-function NewClass() {
+import "../styles/Home.css";
+import "../styles/Sidebar.css";
+
+function NewSlot() {
+    const { id } = useParams(); 
     return (<Layout>
         <Sider className="sidebar">
             <Logo />
             <MenuList currnentKey={'create_class'} />
         </Sider>
-        < FormClass route="addClass/"></FormClass >
+        < FormSlot route={`class${id}`}></FormSlot >
     </Layout>
     )
 }
 
-export default NewClass
+export default NewSlot

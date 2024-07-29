@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { notification } from "antd";
 
 import LoadingIndicator from "./LoadingIndicator";
 import api from "../api";
@@ -19,8 +20,16 @@ function FormClass({ route }) {
         e.preventDefault();
 
         try {
-            const res = await api.post("addClass/", { ClassName, Semester });
-            window.location.reload();
+            api.post("addClass/", { ClassName, Semester })
+                .then((res) => {
+                    if (res.status === 201) notification.success({
+                        message: 'Success',
+                        description: `Class created successfully!
+                                    Please refrest to see it in class`,
+                        placement: 'topRight',
+                        duration: 3,
+                    });
+                });
         } catch (error) {
             alert(error)
         } finally {

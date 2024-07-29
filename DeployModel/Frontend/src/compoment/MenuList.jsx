@@ -66,10 +66,10 @@ const MenuList = (currnentKey) => {
             children:
                 classNames?.map((className) => (
                     {
-                        key: `class-${className.ClassName}`,
-                        label: className.ClassName+ " - "+ className.Semester,
+                        key: `class/${classNames.indexOf(className)}`,
+                        label: className.ClassName + " - " + className.Semester,
                     })),
-            
+
         },
         {
             key: 'activity',

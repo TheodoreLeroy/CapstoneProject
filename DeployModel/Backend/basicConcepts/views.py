@@ -1,37 +1,12 @@
-from django.shortcuts import render, HttpResponse, redirect
-from django.views import View
 from rest_framework import generics
+
 from .models import *
 from .serializers import *
 
-class InitialForm(View):
-    # def my_custom_sql_view(self, request):
-    #     with connection.cursor() as cursor:
-    #         cursor.execute("SELECT * FROM ")
-    def get(self, request):
-        return HttpResponse('<h1>Xin chao</h1>')
-    
-from .forms import ClassForm
-class AddClass(View):
-    def add_class(request):
-        if request.method == 'POST':
-            form = ClassForm(request.POST)
-            if form.is_valid():
-                
-                form.save()
-                return redirect('class-list')  # Replace with the name of your list view URL
-        else:
-            form = ClassForm()
-        return render(request, 'add_class.html', {'form': form})
 
-from django.views.generic import ListView
-from .models import Class
-
-class ClassListView(ListView):
-    model = Class
-    template_name = 'class_list.html'  # Specify your template name
-    context_object_name = 'classes'
-
+# CLASS
+# get list class - urls: "class/"
+# create new class- urls: "addClass/"
 class ClassListCreate(generics.ListCreateAPIView):
     serializer_class = ClassSerializer
 
@@ -40,20 +15,38 @@ class ClassListCreate(generics.ListCreateAPIView):
         return Class.objects.all()
 
     def perform_create(self, serializer):
-        print("asdfgh")
         if serializer.is_valid():
             serializer.save()
         else:
             print(serializer.errors)
+# get list class - urls: "class/delete" - not done
+class ClassDelete(generics.DestroyAPIView):
+    serializer_class = ClassSerializer
 
+    def delete_queryset(self):
+        id = self.request.id
+        return Class.objects.filter(id=id)
+
+
+# STUDENTS
+# get list student - urls: "students/"
 class StudentList(generics.ListCreateAPIView):
     serializer_class = StdSerializers
 
     def get_queryset(self):
         return Student.objects.all()
-    
+
+# SLOT
+# get slot-infomation - url: "slot/"
+# post create-slot - url: "class=<int:classId>/"
 class SlotInfomation(generics.ListCreateAPIView):
     serializer_class = SlotInfomationSerializers
 
     def get_queryset(self):
         return Slot.objects.all()
+    
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            print(serializer.errors)
