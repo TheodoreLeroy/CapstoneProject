@@ -1,5 +1,4 @@
-from . import models
-from django import forms
+from .models import *
 from rest_framework import serializers
 
 # class LogInSerializers(serializers.ModelSerializer):
@@ -15,12 +14,17 @@ from rest_framework import serializers
 
 class StdSerializers(serializers.ModelSerializer):
     class Meta:
-        model = models.Student
-        fields = ["StuId", "StuName", "StuImg"]
+        model = Student
+        fields = '__all__'
 
 class SlotInfomationSerializers(serializers.ModelSerializer):
     class Meta:
-        model = models.Slot
-        fields = ["SlotId", "SlotTime", "SlotSubject"]
+        model = Slot
+        fields = '__all__'
+
+class ClassSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Class
+        fields = ['ClassName', 'Semester'] 
 
     

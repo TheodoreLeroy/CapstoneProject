@@ -1,12 +1,8 @@
 from django.shortcuts import render, HttpResponse, redirect
-from django.contrib.auth.forms import UserCreationForm
 from django.views import View
-from django.db import connection
-from . import models
-from django import forms
 from rest_framework import generics
-from . import serializers as se
-from django.contrib.auth import authenticate
+from .models import *
+from .serializers import *
 
 class InitialForm(View):
     # def my_custom_sql_view(self, request):
@@ -15,7 +11,6 @@ class InitialForm(View):
     def get(self, request):
         return HttpResponse('<h1>Xin chao</h1>')
     
-from django.shortcuts import render, redirect
 from .forms import ClassForm
 class AddClass(View):
     def add_class(request):
@@ -37,14 +32,28 @@ class ClassListView(ListView):
     template_name = 'class_list.html'  # Specify your template name
     context_object_name = 'classes'
 
-class StudentList(generics.ListCreateAPIView):
-    serializer_class = se.StdSerializers
+class ClassListCreate(generics.ListCreateAPIView):
+    serializer_class = ClassSerializer
 
     def get_queryset(self):
-        return models.Student.objects.all()
+
+        return Class.objects.all()
+
+    def perform_create(self, serializer):
+        print("asdfgh")
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            print(serializer.errors)
+
+class StudentList(generics.ListCreateAPIView):
+    serializer_class = StdSerializers
+
+    def get_queryset(self):
+        return Student.objects.all()
     
 class SlotInfomation(generics.ListCreateAPIView):
-    serializer_class = se.SlotInfomationSerializers
+    serializer_class = SlotInfomationSerializers
 
     def get_queryset(self):
-        return models.Slot.objects.all()
+        return Slot.objects.all()

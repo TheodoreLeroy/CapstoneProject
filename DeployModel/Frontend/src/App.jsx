@@ -4,6 +4,7 @@ import Home from "./pages/Home"
 import NotFound from "./pages/NotFound"
 import Register from "./pages/Register"
 import Attendent from "./pages/Attendent"
+import NewClass from "./pages/NewClass"
 
 function App() {
 
@@ -17,6 +18,7 @@ function App() {
         <Route path="/attendent" element={<Attendent />}>
           <Route path=":class/:subject" element={<Attendent />} />
         </Route>
+        <Route path="NewClass" element={<NewClass/>}/>
         <Route path="*" element={<NotFound></NotFound>}></Route>
       </Routes>
     </BrowserRouter>

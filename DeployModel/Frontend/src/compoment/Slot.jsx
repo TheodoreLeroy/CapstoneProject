@@ -19,7 +19,7 @@ const Slot = (params) => {
     }, [])
 
     const getStudents = () => {
-        api.get("/api/user/")
+        api.get("user/")
             .then((res) => res.data)
             .then((data) => { setStudents(data); })
             .catch((e) => {

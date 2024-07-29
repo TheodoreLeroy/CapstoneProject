@@ -1,10 +1,10 @@
 # users/urls.py
 from django.urls import path
-from . import views as v
+from . import views
 
 urlpatterns = [   
-    path("user/", v.StudentList.as_view(), name="user-list"),
-    path("slot/", v.SlotInfomation.as_view(), name="slot-information"),
-    path('add_class/', v.AddClass.add_class, name='add-class'),
-    path('classes/', v.ClassListView.as_view(), name='class-list'),
+    path("user/", views.StudentList.as_view(), name="user-list"),
+    path("slot/", views.SlotInfomation.as_view(), name="slot-information"),
+    path("addClass/", views.ClassListCreate.as_view(), name='add-class'),
+    path('classes/', views.ClassListView.as_view(), name='class-list'),
 ]

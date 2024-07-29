@@ -3,78 +3,29 @@ import React, { useState, useEffect } from 'react';
 import { AppstoreOutlined, AreaChartOutlined, HomeOutlined, LogoutOutlined, SettingOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
-const items = [
-    {
-        key: 'home',
-        icon: <HomeOutlined />,
-        label: 'Home',
-    },    
-    {
-        key: 'progress',
-        icon: <AreaChartOutlined />,
-        label: 'Class',
-        children: [
-            {
-                key: 'attendent/class',
-                label: '1',
-                children: [
-                    {
-                        key: `attendent/5/Math`,
-                        label: 'Math',
-                    },
-                    {
-                        key: 'attendent/5/English',
-                        label: 'English',
-                    },
-                    {
-                        key: 'attendent/5/Physic',
-                        label: 'Physic',
-                    },
-                ],
-            },
-            {
-                key: '24',
-                label: '2',
-                children: [
-                    {
-                        key: '241',
-                        label: 'Option 1',
-                    },
-                    {
-                        key: '242',
-                        label: 'Option 2',
-                    },
-                    {
-                        key: '243',
-                        label: 'Option 3',
-                    },
-                ],
-            },
-        ],
-    },
-    {
-        key: 'activity',
-        icon: <AppstoreOutlined />,
-        label: 'Activity',
-    },
-    {
-        key: 'setting',
-        icon: <SettingOutlined />,
-        label: 'Setting',
-    },
-    {
-        key: 'logout',
-        icon: <LogoutOutlined />,
-        label: 'Log out',
-    },
-];
+import api from "../api";
+
+
 
 const MenuList = (currnentKey) => {
 
     const [current, setCurrent] = useState(currnentKey.currnentKey);
+    const [classNames, setClassNames] = useState([]);
 
     const navigate = useNavigate()
 
+    useEffect(() => {
+        getClass();
+    }, [])
+
+    const getClass = () => {
+        api.get("addClass/")
+            .then((res) => res.data)
+            .then((data) => { setClassNames(data); console.log(data); })
+            .catch((e) => {
+                alert(e)
+            })
+    }
     const onClick = (e) => {
         setCurrent(currnentKey.currnentKey)
         console.log('click e.key: ', e.key);
@@ -93,12 +44,53 @@ const MenuList = (currnentKey) => {
             case 'activity':
                 navigate("/attendent");
                 break;
+            case 'create_class':
+                navigate("/NewClass")
+                break;
             default:
                 navigate(`/${e.key}`)
                 break;
         }
 
     };
+    const items = [
+        {
+            key: 'home',
+            icon: <HomeOutlined />,
+            label: 'Home',
+        },
+        {
+            key: 'progress',
+            icon: <AreaChartOutlined />,
+            label: 'Class',
+            children:
+                classNames?.map((className) => (
+                    {
+                        key: `class-${className.ClassName}`,
+                        label: className.ClassName+ " - "+ className.Semester,
+                    })),
+            
+        },
+        {
+            key: 'activity',
+            icon: <AppstoreOutlined />,
+            label: 'Activity',
+        },
+        {
+            key: 'setting',
+            icon: <SettingOutlined />,
+            label: 'Setting',
+            children: [{
+                key: "create_class",
+                label: "Add new class",
+            },]
+        },
+        {
+            key: 'logout',
+            icon: <LogoutOutlined />,
+            label: 'Log out',
+        },
+    ];
     return <Menu mode="inline" onClick={onClick} selectedKeys={[current]} theme="dark" items={items} />;
 }
 
