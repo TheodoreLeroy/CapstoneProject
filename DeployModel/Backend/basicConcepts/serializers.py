@@ -25,6 +25,6 @@ class SlotInfomationSerializers(serializers.ModelSerializer):
 class ClassSerializer(serializers.ModelSerializer):
     class Meta:
         model = Class
-        fields = ['ClassName', 'Semester'] 
+        fields = ['class_name', 'semester'] 
 
     

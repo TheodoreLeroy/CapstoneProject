@@ -50,3 +50,22 @@ class SlotInfomation(generics.ListCreateAPIView):
             serializer.save()
         else:
             print(serializer.errors)
+
+
+
+# __________________ HA DJANGO ___________________________
+            
+
+from django.shortcuts import render, redirect
+from .forms import ClassForm
+
+# add Class
+def add_class(request):
+    if request.method == 'POST':
+        form = ClassForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('class_list') 
+    else:
+        form = ClassForm()
+    return render(request, 'add_class.html', {'form': form})
