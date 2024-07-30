@@ -16,7 +16,7 @@ function NewSlot() {
             <Logo />
             <MenuList currnentKey={'create_class'} />
         </Sider>
-        < FormSlot route={`class${id}`}></FormSlot >
+        < FormSlot route={`class${id}/`}></FormSlot >
     </Layout>
     )
 }
