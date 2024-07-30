@@ -32,10 +32,11 @@ const PageOne = ({ students, onButtonClick }) => {
                     </thead>
                     <tbody>
                         {students?.map((student) =>(
-                            <tr key={student.StuId}>
-                                <td>{student.StuId}</td>
-                                <td>{student.StuName}</td>
-                                <td><img src={linkImage.concat(student.StuImg.toString())} alt="Member 1" /></td>
+                            <tr key={student.student_id}>
+                                <td>{student.name}</td>
+                                <td>{student.student_id}</td>                              
+                                <td>{student.class_id}</td>
+                                {/* <td><img src={linkImage.concat(student.StuImg.toString())} alt="Member 1" /></td> */}
                             </tr>
                         ))}                       
                     </tbody>

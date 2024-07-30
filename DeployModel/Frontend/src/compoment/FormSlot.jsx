@@ -1,32 +1,45 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { notification, TimePicker, Select } from "antd";
 
 import LoadingIndicator from "./LoadingIndicator";
 import api from "../api";
+import dayjs from 'dayjs';
 
 import "../styles/FormSlot.css"
 
 function FormSlot({ route }) {
-    const [slotId, setSlotId] = useState("");
     const [subject, setSubject] = useState("");
-    const [timeStart, setTimeStart] = useState(null);
-    const [timeEnd, setTimeEnd] = useState(null);
+    const [time_start, setTimeStart] = useState("");
+    const [time_end, setTimeEnd] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [selectedOption, setSelectedOption] = useState(null);
+    const [class_id, setClassId] = useState(null);
     const navigate = useNavigate();
 
     const message = "Create new slot";
+
+    const [classNames, setClassNames] = useState([]);
+
+    useEffect(() => {
+        getClass();
+    }, [])
+
+    const getClass = () => {
+        api.get("classes/detail")
+            .then((res) => res.data)
+            .then((data) => { setClassNames(data); console.log(data); })
+            .catch((e) => {
+                alert(e)
+            })
+    }
 
     const handleSubmit = async (e) => {
         setLoading(true);
         e.preventDefault();
 
-        const timeStartFormatted = timeStart ? timeStart.format("HH:mm:ss") : null;
-        const timeEndFormatted = timeEnd ? timeEnd.format("HH:mm:ss") : null;
 
         try {
-            api.post(route, { ClassName, Semester })
+            api.post(route, { class_id, subject, time_start, time_end })
                 .then((res) => {
                     if (res.status === 201) notification.success({
                         message: 'Success',
@@ -35,6 +48,7 @@ function FormSlot({ route }) {
                         placement: 'topRight',
                         duration: 3,
                     });
+                    navigate("/attendent")
                 });
         } catch (error) {
             alert(error)
@@ -49,36 +63,30 @@ function FormSlot({ route }) {
             <input
                 className="form-input"
                 type="text"
-                value={slotId}
-                onChange={(e) => setClassName(e.target.value)}
-                placeholder="Slot id"
-            />
-            <input
-                className="form-input"
-                type="text"
                 value={subject}
-                onChange={(e) => setSemester(e.target.value)}
+                onChange={(e) => setSubject(e.target.value)}
                 placeholder="Subject"
             />
-            <TimePicker className="timePicker"
-                value={timeStart}
-                onChange={setTimeStart}
-                format="HH:mm:ss"
-            />
-            <TimePicker className="timePicker"
-                value={timeEnd}
-                onChange={setTimeEnd}
-                format="HH:mm:ss"
+            <TimePicker.RangePicker
+                format="HH:mm"
+                onChange={(e) => {
+                    setTimeStart(e[0].format('HH:mm:ss'));
+                    setTimeEnd(e[1].format('HH:mm:ss'));
+                }}
+                defaultValue={[
+                    dayjs('00:00', 'HH:mm'),
+                    dayjs('23:59', 'HH:mm'),
+                ]}
             />
             <Select className="ant-select-selector"
-                value={selectedOption}
-                onChange={setSelectedOption}
+                value={class_id}
+                onChange={setClassId}
                 placeholder="Select an option"
                 style={{ width: 200 }}
             >
-                <Option value="option1">Option 1</Option>
-                <Option value="option2">Option 2</Option>
-                <Option value="option3">Option 3</Option>
+                {[classNames?.map((className) => (
+                    <Select.Option key={className.id} value={className.id} >{className.class_name}</Select.Option>
+                ))]}
             </Select>
             {loading && <LoadingIndicator />}
             <button className="form-button" type="submit" disabled={loading}>

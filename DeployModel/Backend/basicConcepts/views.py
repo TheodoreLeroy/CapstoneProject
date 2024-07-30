@@ -19,6 +19,14 @@ class ClassListCreate(generics.ListCreateAPIView):
             serializer.save()
         else:
             print(serializer.errors)
+
+class ClassListDetailCreate(generics.ListCreateAPIView):
+    serializer_class = ClassDetailSerializer
+
+    def get_queryset(self):
+
+        return Class.objects.all()
+            
 # get list class - urls: "class/delete" - not done
 class ClassDelete(generics.DestroyAPIView):
     serializer_class = ClassSerializer
@@ -35,6 +43,11 @@ class StudentList(generics.ListCreateAPIView):
 
     def get_queryset(self):
         return Student.objects.all()
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            print(serializer.errors)
 
 # SLOT
 # get slot-infomation - url: "slot/"

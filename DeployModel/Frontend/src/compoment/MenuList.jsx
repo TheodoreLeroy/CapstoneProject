@@ -8,7 +8,6 @@ import api from "../api";
 
 
 const MenuList = (currnentKey) => {
-
     const [current, setCurrent] = useState(currnentKey.currnentKey);
     const [classNames, setClassNames] = useState([]);
 
@@ -21,7 +20,7 @@ const MenuList = (currnentKey) => {
     const getClass = () => {
         api.get("addClass/")
             .then((res) => res.data)
-            .then((data) => { setClassNames(data); console.log(data); })
+            .then((data) => {setClassNames(data);})
             .catch((e) => {
                 alert(e)
             })
@@ -67,7 +66,7 @@ const MenuList = (currnentKey) => {
                 classNames?.map((className) => (
                     {
                         key: `class/${classNames.indexOf(className)}`,
-                        label: className.ClassName + " - " + className.Semester,
+                        label: className.class_name + " - " + className.semester,
                     })),
 
         },

@@ -8,8 +8,8 @@ import api from "../api";
 import "../styles/FormClass.css"
 
 function FormClass({ route }) {
-    const [ClassName, setClassName] = useState("");
-    const [Semester, setSemester] = useState("");
+    const [class_name, setClassName] = useState("");
+    const [semester, setSemester] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -20,18 +20,26 @@ function FormClass({ route }) {
         e.preventDefault();
 
         try {
-            api.post("addClass/", { ClassName, Semester })
+            api.post("addClass/", { class_name, semester })
                 .then((res) => {
-                    if (res.status === 201) notification.success({
+                    if (res.status === 201) {
+                        notification.success({
                         message: 'Success',
                         description: `Class created successfully!
                                     Please refrest to see it in class`,
                         placement: 'topRight',
                         duration: 3,
                     });
+                    }
+                }).catch((e) => {
+                    notification.error({
+                        message: 'Error',
+                        description: e.response.data.class_name,
+                        duration: 3,
+                    });
                 });
-        } catch (error) {
-            alert(error)
+        } catch (Error) {
+            alert(Error)
         } finally {
             setLoading(false)
         }
@@ -43,14 +51,14 @@ function FormClass({ route }) {
             <input
                 className="form-input"
                 type="text"
-                value={ClassName}
+                value={class_name}
                 onChange={(e) => setClassName(e.target.value)}
                 placeholder="Class Name"
             />
             <input
                 className="form-input"
                 type="text"
-                value={Semester}
+                value={semester}
                 onChange={(e) => setSemester(e.target.value)}
                 placeholder="Semester"
             />

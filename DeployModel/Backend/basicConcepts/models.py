@@ -49,7 +49,7 @@ class Teacher(models.Model):
 
     
 class Student(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    # user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     class_id = models.ForeignKey(Class, on_delete=models.CASCADE)
     slot_id = models.ForeignKey(Slot, on_delete=models.CASCADE)
     student_id = models.CharField(max_length=255, unique=True)
@@ -57,8 +57,6 @@ class Student(models.Model):
     email = models.EmailField()
     password = models.CharField(max_length=16)
     embedding = models.BinaryField()
-
-
 
 
 class TimeFrame(models.Model):

@@ -26,5 +26,8 @@ class ClassSerializer(serializers.ModelSerializer):
     class Meta:
         model = Class
         fields = ['class_name', 'semester'] 
-
+class ClassDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Class
+        fields = '__all__'
     

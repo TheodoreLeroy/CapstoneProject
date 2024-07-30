@@ -9,8 +9,6 @@ const Slot = (params) => {
     const [page, setPage] = useState("pageone");
     const [isRunning, setIsRunning] = useState(false)
 
-    const [numberSlot, setNumberSlot] = useState(1);
-
     const [slotInfomation, setSlotInfomation] = useState([])
     const [students, setStudents] = useState([]);
 
@@ -19,18 +17,18 @@ const Slot = (params) => {
     }, [])
 
     const getStudents = () => {
-        api.get("user/")
+        api.get("students/")
             .then((res) => res.data)
             .then((data) => { setStudents(data); })
             .catch((e) => {
                 alert(e)
             })
-        // api.get("/api/slot/")
-        //     .then((res) => res.data)
-        //     .then((data) => { setSlotInfomation(data[0]); console.log(data); })
-        //     .catch((e) => {
-        //         alert(e)
-        //     })
+        api.get("slot/")
+            .then((res) => res.data)
+            .then((data) => { setSlotInfomation(data[0]); })
+            .catch((e) => {
+                alert(e)
+            })
             
     }
 
@@ -58,10 +56,10 @@ const Slot = (params) => {
     };
     return (<div className="slot-container">
         <div className="slot-infomation">
-            <p className="slot-number">Slot: {slotInfomation.SlotId}</p>
-            <p className="slot-name">Subject: {slotInfomation.SlotSubject}</p>
-            <p className="slot-class">Class: 5</p>
-            <p className="slot-date">Date: {slotInfomation.SlotTime}</p>
+            <p className="slot-number">Slot: {slotInfomation.id}</p>
+            <p className="slot-name">Subject: {slotInfomation.subject}</p>
+            <p className="slot-class">ClassId: {slotInfomation.class_id} </p>
+            <p className="slot-date">Date: {slotInfomation.time_start} - {slotInfomation.time_end}</p>
             <button className="btn" onClick={() => { setIsRunning(true) }}>Run</button>
         </div>
         <MultiStepProgressBar page={page} onPageNumberClick={nextPageNumber} isRunning={isRunning} className="class-attendent" />
