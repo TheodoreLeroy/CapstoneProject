@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import LoadingIndicator from "./LoadingIndicator";
-import api from "../api"; 
 
 import "../styles/Form.css"
 

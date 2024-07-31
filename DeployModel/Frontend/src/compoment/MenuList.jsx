@@ -3,8 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { AppstoreOutlined, AreaChartOutlined, HomeOutlined, LogoutOutlined, SettingOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
-import api from "../api";
-
+import GetDataFromRoute from "./GetDataFromBackend";
 
 
 const MenuList = (currnentKey) => {
@@ -17,14 +16,12 @@ const MenuList = (currnentKey) => {
         getClass();
     }, [])
 
-    const getClass = () => {
-        api.get("addClass/")
-            .then((res) => res.data)
-            .then((data) => {setClassNames(data);})
-            .catch((e) => {
-                alert(e)
-            })
+    const getClass = async () => {
+        const classData = await GetDataFromRoute("addClass/");
+        setClassNames(classData);
     }
+
+    console.log(classNames);
     const onClick = (e) => {
         setCurrent(currnentKey.currnentKey)
         console.log('click e.key: ', e.key);

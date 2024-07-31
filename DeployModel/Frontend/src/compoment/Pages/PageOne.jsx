@@ -4,7 +4,6 @@ import "./PageOne.css";
 const PageOne = ({ students, onButtonClick }) => {
     const [numberAttendet, setNumberAttendet] = useState(3);
     const [totalStudent, setTotalStudent] = useState(0);
-    const [linkImage, setLinkImage] = useState("../../../../DeployModel/Backend/");
 
     useEffect(() => {
         getTotalStudent();

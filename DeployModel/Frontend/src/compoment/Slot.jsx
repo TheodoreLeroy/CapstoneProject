@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 
-import "../styles/Slot.css"
+import GetDataFromRoute from "./GetDataFromBackend";
 import MultiStepProgressBar from "./MultiStepProgressBar";
-import api from "../api";
 import PageOne from "./Pages/PageOne";
 
+import "../styles/Slot.css"
+
 const Slot = (params) => {
+
     const [page, setPage] = useState("pageone");
     const [isRunning, setIsRunning] = useState(false)
 
@@ -14,23 +16,19 @@ const Slot = (params) => {
 
     useEffect(() => {
         getStudents();
+        getSlot();
     }, [])
 
-    const getStudents = () => {
-        api.get("students/")
-            .then((res) => res.data)
-            .then((data) => { setStudents(data); })
-            .catch((e) => {
-                alert(e)
-            })
-        api.get("slot/")
-            .then((res) => res.data)
-            .then((data) => { setSlotInfomation(data[0]); })
-            .catch((e) => {
-                alert(e)
-            })
-            
+    const getStudents = async () => {
+        const studentData = await GetDataFromRoute(`studentsClass${params.params.idClass}/`)
+        setStudents(studentData);
     }
+    const getSlot = async () => {
+        const slotData = await GetDataFromRoute(`slot${params.params.idSlot}/`)
+        setSlotInfomation(slotData[0]);
+    }
+
+    console.log(slotInfomation);
 
     const nextPage = (page) => {
         setPage(page);

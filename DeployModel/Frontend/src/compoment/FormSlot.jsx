@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { notification, TimePicker, Select } from "antd";
+import dayjs from 'dayjs';
 
 import LoadingIndicator from "./LoadingIndicator";
+import GetDataFromRoute from "./GetDataFromBackend";
 import api from "../api";
-import dayjs from 'dayjs';
+
 
 import "../styles/FormSlot.css"
 
@@ -24,13 +26,9 @@ function FormSlot({ route }) {
         getClass();
     }, [])
 
-    const getClass = () => {
-        api.get("classes/detail")
-            .then((res) => res.data)
-            .then((data) => { setClassNames(data); })
-            .catch((e) => {
-                alert(e)
-            })
+    const getClass = async() => {
+        const classesDetailData = await GetDataFromRoute("classes/detail");
+        setClassNames(classesDetailData);
     }
 
     const handleSubmit = async (e) => {
@@ -48,7 +46,6 @@ function FormSlot({ route }) {
                         placement: 'topRight',
                         duration: 3,
                     });
-                    // navigate("/attendent")
                 });
         } catch (error) {
             alert(error)

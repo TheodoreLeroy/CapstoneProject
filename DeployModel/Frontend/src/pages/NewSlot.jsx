@@ -2,21 +2,23 @@ import FormSlot from "../compoment/FormSlot"
 import Logo from "../compoment/Logo";
 import MenuList from "../compoment/MenuList";
 import GetDataFromRoute from "../compoment/GetDataFromBackend";
-import api from "../api";
 
-import { Await, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Layout } from "antd";
 const { Sider } = Layout
 import { useEffect, useState } from "react";
+
 
 import "../styles/Class.css";
 import "../styles/Sidebar.css";
 
 
 function NewSlot() {
-    const { id } = useParams();
+    const { idClass } = useParams();
     const [slots, setSlots] = useState([]);
     const [classDetail, setClassDetail] = useState({});
+
+    const navigate = useNavigate()
 
     useEffect(() => {
         getSlot();
@@ -24,15 +26,17 @@ function NewSlot() {
     }, [])
 
     const getSlot = async () => {
-        const slotData = await GetDataFromRoute(`class${id}/slot/`)
+        const slotData = await GetDataFromRoute(`class${idClass}/slot/`)
         setSlots(slotData)
     }
     const getClass = async () => {
-        const classData = await GetDataFromRoute(`class${id}/`)
+        const classData = await GetDataFromRoute(`class${idClass}/`)
         setClassDetail(classData[0])
     }
 
-    console.log(classDetail);
+    const handlerClick =(idSlot) =>{
+        navigate(`/class/${idClass}/slot/${idSlot}`)
+    }
 
     return (<Layout>
         <Sider className="sidebar">
@@ -50,14 +54,14 @@ function NewSlot() {
                     <h2 className="class's-slot">Slots: </h2>
                     <div className="all-slots">
                         {slots.map((slot) => (
-                            <div key={slot.id} className="one-slot-container">
+                            <div key={slot.id} id="one-slot-container" onClick={() => handlerClick(slot.id)}>
                                 <p className="class-number">subject: {slot.subject}</p>
                                 <p className="class-semester">Time: {slot.time_start} - {slot.time_end}</p>
                             </div>
                         ))}
                     </div>
                 </div>
-                <FormSlot route={`class${id}/createSlot`}></FormSlot >
+                <FormSlot route={`class${idClass}/createSlot`}></FormSlot >
             </div>
         </div>
     </Layout>

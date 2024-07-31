@@ -58,9 +58,18 @@ class StudentList(generics.ListCreateAPIView):
         else:
             print(serializer.errors)
 
+
+# get list student - urls: "studentsClass<int:classId>/"
+class StudentFromClassId(generics.ListCreateAPIView):
+    serializer_class = StdSerializers
+
+    def get_queryset(self):
+        id = self.kwargs.get('classId')
+        return Student.objects.filter(class_id = id)
+
 # SLOT
 # get slot-infomation - url: "slot/"
-# post create-slot - url: "class=<int:classId>/slot"
+# post create-slot - url: "class=<int:classId>/createSlot"
 class SlotInfomation(generics.ListCreateAPIView):
     serializer_class = SlotInfomationSerializers
 
@@ -73,13 +82,21 @@ class SlotInfomation(generics.ListCreateAPIView):
         else:
             print(serializer.errors)
             
-# Get slot-information for 1 class with class_id
+# Get slot-information for 1 class with class_id - url: "class<int:classId>/slot/"
 class SlotInfomationFromIdClass(generics.ListCreateAPIView):
     serializer_class = SlotInfomationSerializers
 
     def get_queryset(self):
         id = self.kwargs.get('classId')
         return Slot.objects.filter(class_id = id)
+    
+# Get 1 slot-information with id - url: "slot<int:slotId>/"
+class SlotInfomationFromId(generics.ListCreateAPIView):
+    serializer_class = SlotInfomationSerializers
+
+    def get_queryset(self):
+        id = self.kwargs.get('slotId')
+        return Slot.objects.filter(id = id)
 
 
 
