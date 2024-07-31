@@ -9,9 +9,11 @@ urlpatterns = [
     # Class
     path("addClass/", views.ClassListCreate.as_view(), name='add-class'),
     path('classes/', views.ClassListCreate.as_view(), name='class-list'),
-    path('classes/detail', views.ClassListDetailCreate.as_view(), name='delete-class'),
+    path('class<int:classId>/', views.ClasstDetail.as_view(), name="get-one-class"),
+    path('classes/detail', views.ClassListDetail.as_view(), name='get-detail-class'),
 
     # Slot
-    path('class<int:classId>/', views.SlotInfomation.as_view(), name="create-slot"),
+    path('class<int:classId>/createSlot', views.SlotInfomation.as_view(), name="create-slot"),
     path("slot/", views.SlotInfomation.as_view(), name="slot-information"),
+    path("class<int:classId>/slot/", views.SlotInfomationFromIdClass.as_view(), name="slot-information-from-one-class"),
 ]

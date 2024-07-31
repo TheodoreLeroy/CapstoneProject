@@ -5,8 +5,8 @@ from .serializers import *
 
 
 # CLASS
-# get list class - urls: "class/"
-# create new class- urls: "addClass/"
+# get list class - url: "class/"
+# create new class- url: "addClass/"
 class ClassListCreate(generics.ListCreateAPIView):
     serializer_class = ClassSerializer
 
@@ -20,20 +20,29 @@ class ClassListCreate(generics.ListCreateAPIView):
         else:
             print(serializer.errors)
 
-class ClassListDetailCreate(generics.ListCreateAPIView):
+# get list class that have id - url: "classes/detail/"
+class ClassListDetail(generics.ListCreateAPIView):
     serializer_class = ClassDetailSerializer
 
     def get_queryset(self):
 
         return Class.objects.all()
+
+# get 1 class with id of that class - url: 
+class ClasstDetail(generics.ListCreateAPIView):
+    serializer_class = ClassDetailSerializer
+
+    def get_queryset(self):
+        class_id = self.kwargs.get('classId')
+        return Class.objects.filter(id = class_id)
             
 # get list class - urls: "class/delete" - not done
-class ClassDelete(generics.DestroyAPIView):
-    serializer_class = ClassSerializer
+# class ClassDelete(generics.DestroyAPIView):
+#     serializer_class = ClassSerializer
 
-    def delete_queryset(self):
-        id = self.request.id
-        return Class.objects.filter(id=id)
+#     def delete_queryset(self):
+#         id = self.request.id
+#         return Class.objects.filter(id=id)
 
 
 # STUDENTS
@@ -51,7 +60,7 @@ class StudentList(generics.ListCreateAPIView):
 
 # SLOT
 # get slot-infomation - url: "slot/"
-# post create-slot - url: "class=<int:classId>/"
+# post create-slot - url: "class=<int:classId>/slot"
 class SlotInfomation(generics.ListCreateAPIView):
     serializer_class = SlotInfomationSerializers
 
@@ -63,6 +72,14 @@ class SlotInfomation(generics.ListCreateAPIView):
             serializer.save()
         else:
             print(serializer.errors)
+            
+# Get slot-information for 1 class with class_id
+class SlotInfomationFromIdClass(generics.ListCreateAPIView):
+    serializer_class = SlotInfomationSerializers
+
+    def get_queryset(self):
+        id = self.kwargs.get('classId')
+        return Slot.objects.filter(class_id = id)
 
 
 
