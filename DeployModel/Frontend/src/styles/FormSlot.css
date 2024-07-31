@@ -3,13 +3,13 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin: auto;
+    margin: 10px 20px;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     max-width: 400px;
     max-height: 400px;
-    height: 400px;
+    height: 350px;
     width: 400px;
   }
   
@@ -49,11 +49,7 @@
     margin: 10px 0;
     border: 1px solid #ccc;
   }
-
-  .ant-select-selector{
-    width: 90%;
-    height: 40px;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
+  .ant-picker-input >input{
+    margin: 0px;
+    align-items: center;
   }

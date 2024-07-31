@@ -65,7 +65,7 @@ const MenuList = (currnentKey) => {
             children:
                 classNames?.map((className) => (
                     {
-                        key: `class/${classNames.indexOf(className)}`,
+                        key: `class/${classNames.indexOf(className) + 1}`,
                         label: className.class_name + " - " + className.semester,
                     })),
 

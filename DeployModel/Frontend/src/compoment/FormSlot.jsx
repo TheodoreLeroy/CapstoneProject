@@ -27,7 +27,7 @@ function FormSlot({ route }) {
     const getClass = () => {
         api.get("classes/detail")
             .then((res) => res.data)
-            .then((data) => { setClassNames(data); console.log(data); })
+            .then((data) => { setClassNames(data); })
             .catch((e) => {
                 alert(e)
             })
@@ -48,7 +48,7 @@ function FormSlot({ route }) {
                         placement: 'topRight',
                         duration: 3,
                     });
-                    navigate("/attendent")
+                    // navigate("/attendent")
                 });
         } catch (error) {
             alert(error)
@@ -59,7 +59,7 @@ function FormSlot({ route }) {
 
     return (
         <form onSubmit={handleSubmit} className="form-container">
-            <h1>Create new class</h1>
+            <h1>{message}</h1>
             <input
                 className="form-input"
                 type="text"
@@ -68,6 +68,7 @@ function FormSlot({ route }) {
                 placeholder="Subject"
             />
             <TimePicker.RangePicker
+                className="timePicker"
                 format="HH:mm"
                 onChange={(e) => {
                     setTimeStart(e[0].format('HH:mm:ss'));
@@ -75,7 +76,7 @@ function FormSlot({ route }) {
                 }}
                 defaultValue={[
                     dayjs('00:00', 'HH:mm'),
-                    dayjs('23:59', 'HH:mm'),
+                    dayjs('00:00', 'HH:mm'),
                 ]}
             />
             <Select className="ant-select-selector"
@@ -89,7 +90,7 @@ function FormSlot({ route }) {
                 ))]}
             </Select>
             {loading && <LoadingIndicator />}
-            <button className="form-button" type="submit" disabled={loading}>
+            <button className="form-button" type="submit">
                 {message}
             </button>
         </form>
