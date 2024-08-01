@@ -9,7 +9,6 @@ const { Sider } = Layout
 
 function Attendent() {
     let params = useParams();
-    console.log(params)
     return <Layout>
         <Sider className="sidebar">
             <Logo />

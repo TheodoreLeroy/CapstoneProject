@@ -51,8 +51,8 @@ class Teacher(models.Model):
 class Student(models.Model):
     # user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     class_id = models.ForeignKey(Class, on_delete=models.CASCADE)
-    slot_id = models.ForeignKey(Slot, on_delete=models.CASCADE)
-    student_id = models.CharField(max_length=255, unique=True)
+    # slot_id = models.ForeignKey(Slot, on_delete=models.CASCADE)
+    # student_id = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=50)
     email = models.EmailField()
     password = models.CharField(max_length=16)

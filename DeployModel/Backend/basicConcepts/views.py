@@ -66,6 +66,11 @@ class StudentFromClassId(generics.ListCreateAPIView):
     def get_queryset(self):
         id = self.kwargs.get('classId')
         return Student.objects.filter(class_id = id)
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            print(serializer.errors)
 
 # SLOT
 # get slot-infomation - url: "slot/"

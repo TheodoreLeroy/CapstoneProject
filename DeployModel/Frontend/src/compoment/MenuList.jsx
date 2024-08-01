@@ -21,7 +21,13 @@ const MenuList = (currnentKey) => {
         setClassNames(classData);
     }
 
-    console.log(classNames);
+    const options = classNames && classNames.length > 0 ?
+        classNames.map((className, index) => ({
+            key: `class/${index + 1}`,
+            label: `${className.class_name} - ${className.semester}`,
+        })) :
+        [{ key: 'no-classes', label: 'No classes available' }];
+
     const onClick = (e) => {
         setCurrent(currnentKey.currnentKey)
         console.log('click e.key: ', e.key);
@@ -45,6 +51,7 @@ const MenuList = (currnentKey) => {
                 break;
             default:
                 navigate(`/${e.key}`)
+                window.location.reload();
                 break;
         }
 

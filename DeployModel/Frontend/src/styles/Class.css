@@ -78,6 +78,7 @@ html, body {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   min-height: 350px;
+  min-width: 450px;
   height: fit-content;
   width: 100%;
   display: flex;
@@ -108,4 +109,20 @@ html, body {
 #one-slot-container:hover{
   border-radius: 8px;
   box-shadow: 0 2px 4px #007bff;
+}
+
+/* styles.css */
+.fade-enter {
+    opacity: 0;
+}
+.fade-enter-active {
+    opacity: 1;
+    transition: opacity 500ms;
+}
+.fade-exit {
+    opacity: 1;
+}
+.fade-exit-active {
+    opacity: 0;
+    transition: opacity 500ms;
 }

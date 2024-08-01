@@ -33,7 +33,7 @@ const PageOne = ({ students, onButtonClick }) => {
                         {students?.map((student) =>(
                             <tr key={student.student_id}>
                                 <td>{student.name}</td>
-                                <td>{student.student_id}</td>                              
+                                <td>{student.id}</td>                              
                                 <td>{student.class_id}</td>
                                 {/* <td><img src={linkImage.concat(student.StuImg.toString())} alt="Member 1" /></td> */}
                             </tr>

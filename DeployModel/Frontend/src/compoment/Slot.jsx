@@ -7,7 +7,7 @@ import PageOne from "./Pages/PageOne";
 import "../styles/Slot.css"
 
 const Slot = (params) => {
-
+    const totalSteps = 15;
     const [page, setPage] = useState("pageone");
     const [isRunning, setIsRunning] = useState(false)
 
@@ -27,8 +27,6 @@ const Slot = (params) => {
         const slotData = await GetDataFromRoute(`slot${params.params.idSlot}/`)
         setSlotInfomation(slotData[0]);
     }
-
-    console.log(slotInfomation);
 
     const nextPage = (page) => {
         setPage(page);
@@ -52,7 +50,7 @@ const Slot = (params) => {
                 setPage("1");
         }
     };
-    return (<div className="slot-container">
+    return (<div className="slot-container-main">
         <div className="slot-infomation">
             <p className="slot-number">Slot: {slotInfomation.id}</p>
             <p className="slot-name">Subject: {slotInfomation.subject}</p>
@@ -60,8 +58,9 @@ const Slot = (params) => {
             <p className="slot-date">Date: {slotInfomation.time_start} - {slotInfomation.time_end}</p>
             <button className="btn" onClick={() => { setIsRunning(true) }}>Run</button>
         </div>
-        <MultiStepProgressBar page={page} onPageNumberClick={nextPageNumber} isRunning={isRunning} className="class-attendent" />
+        <MultiStepProgressBar page={page} onPageNumberClick={nextPageNumber} isRunning={isRunning} className="class-attendent" totalSteps={totalSteps} />
         {
+            // in working....................................................
             {
                 pageone: <PageOne students={students} onButtonClick={nextPage} />,
                 pagetwo: <PageOne students={students} onButtonClick={nextPage} />,
