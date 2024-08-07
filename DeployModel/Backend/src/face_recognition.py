@@ -34,7 +34,7 @@ class FaceRecognition:
         return student_embeddings
 
     def recognize_faces(self, image):
-        """
+        """ 
         Recognize faces in a given image.
         Args:
             image (PIL.Image): The image containing faces to recognize.
@@ -44,10 +44,19 @@ class FaceRecognition:
         aligned_faces = self.mtcnn(image)
         if aligned_faces is None:
             return ["No face detected"]
-        
+
+
+
         embeddings = self.model(aligned_faces)
         identified_students = [self._identify_student(embedding) for embedding in embeddings]
+
+        # returnData = {
+        #     "identified_students": identified_students,
+        #     "embeddings": embeddings
+        # }
+
         return identified_students
+    
 
     def _identify_student(self, face_embedding, threshold=0.7):
         """

@@ -4,8 +4,7 @@ import Home from "./pages/Home"
 import NotFound from "./pages/NotFound"
 import Register from "./pages/Register"
 import Attendent from "./pages/Attendent"
-import NewClass from "./pages/NewClass"
-import NewSlot from "./pages/NewSlot"
+import Class from "./pages/Class"
 
 function App() {
 
@@ -16,13 +15,12 @@ function App() {
         <Route path="/login" element={<Login></Login>} />
         <Route path="/register" element={<Register />} />
         <Route path="/home" element={<Home />} />
-        <Route path="/class/:idClass" element={<NewSlot />} />
+        <Route path="/class/:idClass" element={<Class />} />
         <Route path="/class/:idClass/slot/:idSlot" element={<Attendent />} />
 
-        <Route path="/attendent" element={<Attendent />}>
+        <Route path="/attendent">
           <Route path=":class/:subject" element={<Attendent />} />
         </Route>
-        <Route path="/newClass" element={<NewClass />} />
         <Route path="*" element={<NotFound></NotFound>}></Route>
       </Routes>
     </BrowserRouter>

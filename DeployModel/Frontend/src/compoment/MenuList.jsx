@@ -43,12 +43,6 @@ const MenuList = (currnentKey) => {
                 localStorage.clear();
                 navigate("/login");
                 break;
-            case 'activity':
-                navigate("/attendent");
-                break;
-            case 'create_class':
-                navigate("/NewClass")
-                break;
             default:
                 navigate(`/${e.key}`)
                 window.location.reload();
@@ -63,7 +57,7 @@ const MenuList = (currnentKey) => {
             label: 'Home',
         },
         {
-            key: 'progress',
+            key: 'class',
             icon: <AreaChartOutlined />,
             label: 'Class',
             children:
@@ -73,20 +67,6 @@ const MenuList = (currnentKey) => {
                         label: className.class_name + " - " + className.semester,
                     })),
 
-        },
-        {
-            key: 'activity',
-            icon: <AppstoreOutlined />,
-            label: 'Activity',
-        },
-        {
-            key: 'setting',
-            icon: <SettingOutlined />,
-            label: 'Setting',
-            children: [{
-                key: "create_class",
-                label: "Add new class",
-            },]
         },
         {
             key: 'logout',

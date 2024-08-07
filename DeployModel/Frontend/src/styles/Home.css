@@ -3,15 +3,27 @@ div {
   font-family: Arial, sans-serif;
 }
 
-.main{
-  min-height: 100vh; /* Ensure the container covers the full viewport height */
-  position: flex;
-  padding: 5%;
+.all-class-container{
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-height: 350px;
+  min-width: 450px;
+  height: fit-content;
+  width: auto;
+  display: flex;
+  flex-direction: column;
+  margin: 10px;
+}
+
+/* Ensure the main container fits the screen */
+.main-home {
   width: 100%;
-  align-items: center;
-  justify-content: center;
+  max-width: 100vw; /* Ensure it doesn't exceed viewport width */
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
-html, body {
-    margin: 0;
-    height: 100vh;
-}
+
+
+

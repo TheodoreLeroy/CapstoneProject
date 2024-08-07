@@ -4,14 +4,6 @@ div {
   
 }
 /* Styles for the form section */
-form {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  max-width: 500px;
-  margin: auto;
-}
 
 form h2 {
   color: #333;
@@ -77,7 +69,7 @@ html, body {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  min-height: 350px;
+  min-height: 400px;
   min-width: 450px;
   height: fit-content;
   width: 100%;
@@ -109,6 +101,7 @@ html, body {
 #one-slot-container:hover{
   border-radius: 8px;
   box-shadow: 0 2px 4px #007bff;
+  cursor: pointer;
 }
 
 /* styles.css */
@@ -125,4 +118,8 @@ html, body {
 .fade-exit-active {
     opacity: 0;
     transition: opacity 500ms;
+}
+
+.ant-card-head-title{
+  font-size: 24px;
 }

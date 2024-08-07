@@ -58,16 +58,25 @@ class Student(models.Model):
     password = models.CharField(max_length=16)
     embedding = models.BinaryField()
 
-
+# for each frame in 15 frame in camera
+# embedding for image of total class (first or last in 15 frame)
 class TimeFrame(models.Model):
-    class_id = models.ForeignKey(Class, on_delete=models.CASCADE)
+    embedding = models.BinaryField()
     slot_id = models.ForeignKey(Slot, on_delete=models.CASCADE)
-    time = models.DateTimeField(auto_now_add=True)
 
+# contain all student that model can recognite in one frame. when it have detect face bt can't recognite std_id = null
+class AttendentStudentsAtOneFrame(models.Model):
+    embedding = models.JSONField()
+    student_id = models.CharField(max_length=255)
+    time_frame = models.ForeignKey(TimeFrame, on_delete=models.CASCADE, related_name='attendent_students')
 
+# contain last status of slot 
 class Log(models.Model):
-    class_id = models.ForeignKey(Class, on_delete=models.CASCADE)
     slot_id = models.ForeignKey(Slot, on_delete=models.CASCADE)
-    student_id = models.ForeignKey(Student, on_delete=models.CASCADE)
     attend_status = models.BinaryField(default=0)
 
+# contain status one student for each row after slot
+class AttendentStudentsAtAllFrame(models.Model):
+    log_id = models.ForeignKey(Log, on_delete=models.CASCADE)
+    student_id = models.CharField(max_length=255)
+    total_attendent = models.IntegerField(default=0)

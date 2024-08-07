@@ -1,17 +1,159 @@
+// libarary
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Layout, Card, List, Button, Avatar, Modal, Form, Input, message, notification } from 'antd';
+import { PlusOutlined, BookTwoTone } from '@ant-design/icons';
+const { Content, Footer, Sider } = Layout;
+
+// css files
 import "../styles/Home.css";
 import "../styles/Sidebar.css";
+
+//compoment
 import Logo from "../compoment/Logo";
 import MenuList from "../compoment/MenuList";
-import { Layout } from "antd";
-const { Header, Sider } = Layout
+import GetDataFromRoute from '../compoment/GetDataFromBackend';
+import api from '../api';
+
 
 function Home() {
+
+    const [classes, setClasses] = useState([]);
+
+    const [class_name, setClassName] = useState("");
+    const [semester, setSemester] = useState("");
+
+    useEffect(() => {
+        getClass();
+    }, [])
+
+    const getClass = async () => {
+        const classData = await GetDataFromRoute(`classes/detail`)
+        setClasses(classData)
+    }
+
+    const navigate = useNavigate();
+
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [form] = Form.useForm();
+
+    const showModal = () => {
+        setIsModalVisible(true);
+    };
+
+    const handleOk = () => {
+        form
+            .validateFields()
+            .then(values => {
+                form.resetFields();
+                console.log(class_name, semester);
+
+                handleClassSubmit();
+                setIsModalVisible(false);
+                message.success('Class added successfully!');
+            })
+            .catch(info => {
+                console.log('Validate Failed:', info);
+            });
+    };
+
+    const handleCancel = () => {
+        setIsModalVisible(false);
+    };
+
+
+    const handleClassSubmit = async () => {
+
+        try {
+            api.post("addClass/", { class_name, semester })
+                .then((res) => {
+                    if (res.status === 201) {
+                        notification.success({
+                            message: 'Success',
+                            description: `Class created successfully!`,
+                            placement: 'topRight',
+                            duration: 3,
+                        });
+                        getClass();
+                    }
+                });
+        } catch (Error) {
+            notification.error({
+                message: 'Error',
+                description: Error.response.data.class_name,
+                duration: 3,
+            });
+        }
+    };
+
+
 
     return <Layout>
         <Sider className="sidebar">
             <Logo />
             <MenuList currnentKey={'home'} />
         </Sider>
+        <Layout style={{ minHeight: '100vh' }}>
+            <Layout className="site-layout">
+                <Content style={{ margin: '0 16px' }}>
+                    <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
+                        <Card title="Classes" extra={<Button type="primary" icon={<PlusOutlined />} onClick={showModal}>Add Class</Button>}>
+                            <List
+                                itemLayout="horizontal"
+                                dataSource={classes}
+                                renderItem={classDetail => (
+
+                                    <List.Item
+                                        actions={[<Button type="link" onClick={(e) => navigate(`/class/${classDetail.id}/`)}>View</Button>]}
+                                    >
+                                        <List.Item.Meta
+                                            avatar={<Avatar style={{ backgroundColor: "#6DAAFF" }} icon={<BookTwoTone />} />}
+                                            title={classDetail.class_name}
+                                            description={`Semester: ${classDetail.semester}`}
+                                        />
+                                    </List.Item>
+                                )}
+                            />
+                        </Card>
+                    </div>
+                </Content>
+                <Footer style={{ textAlign: 'center' }}>Attendance System ©2024 Created by YourName</Footer>
+            </Layout>
+
+            <Modal
+                title="Add New Class"
+                visible={isModalVisible}
+                onOk={handleOk}
+                onCancel={handleCancel}
+            >
+                <Form
+                    form={form}
+                    layout='vertical'
+                    name="add_class_form"
+                    requiredMark="optional"
+                >
+                    <Form.Item
+                        name="name"
+                        label="Class Name"
+                        rules={[{ required: true, message: 'Please input the class name!' }]}
+                    >
+                        <Input
+                            onChange={(e) => setClassName(e.target.defaultValue)}
+                        />
+                    </Form.Item>
+                    <Form.Item
+                        name="semester"
+                        label="Semester"
+                        rules={[{ required: true, message: 'Please input the Semester!' }]}
+                    >
+                        <Input
+                            onChange={(e) => setSemester(e.target.defaultValue)}
+                        />
+                    </Form.Item>
+                    {/* Add more fields as needed */}
+                </Form>
+            </Modal>
+        </Layout>
     </Layout>
 }
 

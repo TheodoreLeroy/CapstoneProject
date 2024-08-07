@@ -46,7 +46,7 @@ function FormClass({ route }) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="form-container">
+        <form onSubmit={handleSubmit} className="form-class-container">
             <h1>Create new class</h1>
             <input
                 className="form-input"
