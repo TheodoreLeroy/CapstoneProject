@@ -5,42 +5,55 @@ import { Layout, Card, List, Button, Avatar, Modal, Form, Input, message, notifi
 import { PlusOutlined, BookTwoTone } from '@ant-design/icons';
 const { Content, Footer, Sider } = Layout;
 
-// css files
-import "../styles/Home.css";
-import "../styles/Sidebar.css";
-
 //compoment
 import Logo from "../compoment/Logo";
 import MenuList from "../compoment/MenuList";
 import GetDataFromRoute from '../compoment/GetDataFromBackend';
 import api from '../api';
 
+// css files
+import "../styles/Home.css";
+import "../styles/Sidebar.css";
 
 function Home() {
-
+    //Classes
     const [classes, setClasses] = useState([]);
 
+    //new class
     const [class_name, setClassName] = useState("");
     const [semester, setSemester] = useState("");
 
+    // ======================================= get data =======================================
     useEffect(() => {
         getClass();
     }, [])
 
+    //get classes data which also contain id
     const getClass = async () => {
         const classData = await GetDataFromRoute(`classes/detail`)
         setClasses(classData)
     }
 
+    //to navigate to another page
     const navigate = useNavigate();
 
-    const [isModalVisible, setIsModalVisible] = useState(false);
+    //======================================= Form =======================================
     const [form] = Form.useForm();
 
+    //form add new class
+    const [isModalVisible, setIsModalVisible] = useState(false);
+
+    //open modal
     const showModal = () => {
         setIsModalVisible(true);
     };
 
+    //turn off modal
+    const handleCancel = () => {
+        setIsModalVisible(false);
+    };
+
+    //get information from form modal
     const handleOk = () => {
         form
             .validateFields()
@@ -57,13 +70,9 @@ function Home() {
             });
     };
 
-    const handleCancel = () => {
-        setIsModalVisible(false);
-    };
-
-
+    //sent data to backend
+    //url: addClass/ - data: class_name, semester 
     const handleClassSubmit = async () => {
-
         try {
             api.post("addClass/", { class_name, semester })
                 .then((res) => {
@@ -122,7 +131,7 @@ function Home() {
 
             <Modal
                 title="Add New Class"
-                visible={isModalVisible}
+                open={isModalVisible}
                 onOk={handleOk}
                 onCancel={handleCancel}
             >
@@ -150,7 +159,6 @@ function Home() {
                             onChange={(e) => setSemester(e.target.defaultValue)}
                         />
                     </Form.Item>
-                    {/* Add more fields as needed */}
                 </Form>
             </Modal>
         </Layout>

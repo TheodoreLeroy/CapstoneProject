@@ -8,11 +8,5 @@ export default defineConfig({
     exclude: [
       'js-big-decimal',
     ]
-  },
-  define: {
-    __DEFINES__: {
-      'process.env.NODE_ENV': JSON.stringify('development'),
-      'process.env.API_URL': JSON.stringify('http://localhost:8000'),
-    }
   }
 })

@@ -1,8 +1,16 @@
-function NotFound(){
-    return <div>
-        <h1>404 Not Found</h1>
-        <p>This Page not exist</p>
-    </div>
+import React from 'react';
+import { useNavigate } from "react-router-dom";
+import { Button, Result } from 'antd';
+
+function NotFound() {
+    const navigate = useNavigate();
+
+    return <Result
+        status="404"
+        title="404"
+        subTitle="Sorry, the page you visited does not exist."
+        extra={<Button type="primary" onClick={() => { navigate("/home"); }}>Back Home</Button>}
+    />
 }
 
 export default NotFound

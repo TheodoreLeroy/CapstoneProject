@@ -48,10 +48,6 @@ form input[type="submit"]:hover {
   align-items: center;
   justify-content: center;
 }
-html, body {
-    margin: 0;
-    height: 100vh;
-}
 
 .class-container{
   display: flex;
@@ -76,6 +72,7 @@ html, body {
   display: flex;
   flex-direction: column;
   margin: 10px;
+  box-sizing: border-box;
 }
 
 .slots-class-container{

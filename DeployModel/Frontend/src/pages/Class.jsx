@@ -1,7 +1,7 @@
 //Libarary
 import { useParams, Link } from "react-router-dom";
-import { Layout, Card, List, Button, Avatar, Modal, Form, Input, message, TimePicker, notification } from 'antd';
-import { PlusOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { Layout, Card, List, Button, Avatar, Modal, Form, Input, message, TimePicker, notification, Tooltip } from 'antd';
+import { PlusOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useEffect, useState } from "react";
 import dayjs from 'dayjs';
 const { Sider } = Layout
@@ -14,15 +14,19 @@ import api from "../api";
 
 //css
 import "../styles/Sidebar.css";
+import "../styles/Class.css";
 
 function Class() {
 
     //get idClass from url
     const { idClass } = useParams();
+
     //get all slots of class from class id
     const [slots, setSlots] = useState([]);
+
     //Detail Class
     const [classDetail, setClassDetail] = useState({});
+
     //get all students of class from class id
     const [students, setStudents] = useState([]);
 
@@ -34,6 +38,7 @@ function Class() {
     //get new student from form
     const [name, setNewStudent] = useState("");
 
+
     // ======================================= get data =======================================
     useEffect(() => {
         getSlot();
@@ -43,20 +48,20 @@ function Class() {
 
     //get data Class
     const getClass = async () => {
-        const classData = await GetDataFromRoute(`class${idClass}/`)
-        setClassDetail(classData[0])
+        const classData = await GetDataFromRoute(`class${idClass}/`);
+        setClassDetail(classData[0]);
     }
 
     //get data slots of class
     const getSlot = async () => {
-        const slotData = await GetDataFromRoute(`class${idClass}/slot/`)
-        setSlots(slotData)
+        const slotData = await GetDataFromRoute(`class${idClass}/slot/`);
+        setSlots(slotData);
     }
 
     //get data Students of class
     const getStudent = async () => {
-        const studentsData = await GetDataFromRoute(`studentsClass${idClass}/`)
-        setStudents(studentsData)
+        const studentsData = await GetDataFromRoute(`studentsClass${idClass}/`);
+        setStudents(studentsData);
     }
 
     //======================================= Form =======================================
@@ -179,7 +184,11 @@ function Class() {
             >
                 <p className="class-number">Class name: {classDetail.class_name}</p>
                 <p className="class's-slot">Semester: {classDetail.semester}</p>
-                <p className="class's-slot">Total student: {students.length}</p>
+                <p className="class's-slot">Total student: {students.length}{students.length === 0 && (
+                    <Tooltip title="No students available">
+                        <ExclamationCircleOutlined style={{ color: 'red', marginLeft: 8 }} />
+                    </Tooltip>
+                )} </p>
             </Card>
             <Card
                 style={{
@@ -187,7 +196,8 @@ function Class() {
                 }}
                 title="Slots: "
                 className="slot-container"
-                extra={<Button type="primary" icon={<PlusOutlined />} onClick={showSlotModal}>Add Slot</Button>}>
+                extra={<Button type="primary" icon={<PlusOutlined />} onClick={showSlotModal}>Add Slot</Button>}
+            >
                 <List
                     grid={{ gutter: 16, column: 3 }}
                     dataSource={slots}
@@ -210,8 +220,8 @@ function Class() {
             </Card>
         </div>
         <Modal
-            title="Add New Slot"
-            visible={isModalStudentVisible}
+            title="Add new student"
+            open={isModalStudentVisible}
             onOk={handleStudentOk}
             onCancel={handleStudentCancel}
         >
@@ -231,7 +241,7 @@ function Class() {
         </Modal>
         <Modal
             title="Add New Slot"
-            visible={isModalSlotVisible}
+            open={isModalSlotVisible}
             onOk={handleSlotOk}
             onCancel={handleSlotCancel}
         >

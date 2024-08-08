@@ -1,14 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import LoadingIndicator from "./LoadingIndicator";
-
 import "../styles/Form.css"
 
 function Form({ route, method }) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const message = method === "login" ? ["Login", "Register", "Already have account? Try "] : ["Register", "Login", "Don't have account? Try "];
@@ -28,8 +25,6 @@ function Form({ route, method }) {
             }
         } catch (error) {
             alert(error)
-        } finally {
-            setLoading(false)
         }
     };
 
@@ -50,7 +45,6 @@ function Form({ route, method }) {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
             />
-            {loading && <LoadingIndicator />}
             <button className="form-button" type="submit">
                 {message[0]}
             </button>
