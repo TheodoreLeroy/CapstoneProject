@@ -1,6 +1,6 @@
 import { Menu } from "antd";
 import React, { useState, useEffect } from 'react';
-import { AppstoreOutlined, AreaChartOutlined, HomeOutlined, LogoutOutlined, SettingOutlined } from "@ant-design/icons";
+import { AreaChartOutlined, HomeOutlined, LogoutOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
 import GetDataFromRoute from "./GetDataFromBackend";
@@ -20,13 +20,6 @@ const MenuList = (currnentKey) => {
         const classData = await GetDataFromRoute("addClass/");
         setClassNames(classData);
     }
-
-    const options = classNames && classNames.length > 0 ?
-        classNames.map((className, index) => ({
-            key: `class/${index + 1}`,
-            label: `${className.class_name} - ${className.semester}`,
-        })) :
-        [{ key: 'no-classes', label: 'No classes available' }];
 
     const onClick = (e) => {
         setCurrent(currnentKey.currnentKey)

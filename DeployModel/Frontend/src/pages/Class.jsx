@@ -1,6 +1,6 @@
 //Libarary
 import { useParams, Link } from "react-router-dom";
-import { Layout, Card, List, Button, Avatar, Modal, Form, Input, message, TimePicker, notification, Tooltip } from 'antd';
+import { Layout, Card, List, Button, Avatar, Modal, Form, Input, TimePicker, notification, Tooltip, Tabs, Table } from 'antd';
 import { PlusOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useEffect, useState } from "react";
 import dayjs from 'dayjs';
@@ -63,6 +63,11 @@ function Class() {
         const studentsData = await GetDataFromRoute(`studentsClass${idClass}/`);
         setStudents(studentsData);
     }
+    const dataSource = students?.map(student => ({
+        name: student.name,
+        ID: student.id,
+        picture: 1, // Adjust based on your student object structure
+    })) || [];
 
     //======================================= Form =======================================
     const [form] = Form.useForm();
@@ -137,6 +142,8 @@ function Class() {
             .then(values => {
                 form.resetFields();
                 handleSubmitStudent();
+                console.log(name);
+                
                 setIsModalStudentVisible(false);
             })
             .catch(info => {
@@ -146,7 +153,7 @@ function Class() {
 
     //sent data to backend
     const handleSubmitStudent = async () => {
-        const email = name.concat('', (students.length + 1)).concat('', "@gmail.com")
+        const email = name.replace(/\s/g, "").concat('', (students.length + 1)).concat('', "@gmail.com")
         const password = "123456"
         try {
             const res = await api.post(`studentsClass${idClass}/`, { name, email, password, class_id: idClass });
@@ -180,7 +187,6 @@ function Class() {
                 title="Class Information"
                 className="class-container"
                 bordered={false}
-                extra={<Button type="primary" icon={<PlusOutlined />} onClick={showStudentModal}>Add Student</Button>}
             >
                 <p className="class-number">Class name: {classDetail.class_name}</p>
                 <p className="class's-slot">Semester: {classDetail.semester}</p>
@@ -190,34 +196,75 @@ function Class() {
                     </Tooltip>
                 )} </p>
             </Card>
-            <Card
-                style={{
-                    fontSize: "24px"
-                }}
-                title="Slots: "
-                className="slot-container"
-                extra={<Button type="primary" icon={<PlusOutlined />} onClick={showSlotModal}>Add Slot</Button>}
+            <Tabs
+                defaultActiveKey="1"
+                className="Tabs-container"
+                size="large"
             >
-                <List
-                    grid={{ gutter: 16, column: 3 }}
-                    dataSource={slots}
-                    renderItem={slot => (
-                        <List.Item>
-                            <Link to={`/class/${idClass}/slot/${slot.id}`}>
-                                <Card
-                                    hoverable={true}
-                                >
-                                    <List.Item.Meta
-                                        avatar={<Avatar icon={<CheckCircleOutlined />} />}
-                                        title={slot.subject}
-                                        description={`Time: ${slot.time_start} - ${slot.time_end}`}
-                                    />
-                                </Card>
-                            </Link>
-                        </List.Item>
-                    )}
-                />
-            </Card>
+                <Tabs.TabPane tab="Slots" key="1">
+                    <Card
+                        style={{
+                            fontSize: "24px"
+                        }}
+                        title="Slots: "
+                        className="slot-container"
+                        extra={<Button type="primary" icon={<PlusOutlined />} onClick={showSlotModal}>Add Slot</Button>}
+                    >
+                        <List
+                            grid={{ gutter: 16, column: 3 }}
+                            dataSource={slots}
+                            renderItem={slot => (
+                                <List.Item>
+                                    <Link to={`/class/${idClass}/slot/${slot.id}`}>
+                                        <Card
+                                            hoverable={true}
+                                            style={{minWidth: "75px"}}
+                                        >
+                                            <List.Item.Meta
+                                                avatar={<Avatar icon={<CheckCircleOutlined />} />}
+                                                title={slot.subject}
+                                                description={`Time: ${slot.time_start} - ${slot.time_end}`}
+                                            />
+                                        </Card>
+                                    </Link>
+                                </List.Item>
+                            )}
+                        />
+                    </Card>
+                </Tabs.TabPane>
+                <Tabs.TabPane tab="Students" key="2">
+                    <Card
+                        style={{
+                            fontSize: "24px"
+                        }}
+                        title="Student: "
+                        className="slot-container"
+                        extra={<Button type="primary" icon={<PlusOutlined />} onClick={showStudentModal}>Add Student</Button>}
+                    >
+                        <Table
+                            columns={[
+                                {
+                                    title: 'Name',
+                                    dataIndex: 'name',
+                                    key: 'name',
+                                },
+                                {
+                                    title: 'ID',
+                                    dataIndex: 'ID',
+                                    key: 'ID',
+                                },
+                                {
+                                    title: 'Picture',
+                                    dataIndex: 'picture',
+                                    key: 'picture',
+                                },
+                            ]}
+                            dataSource={dataSource}
+                        ></Table>
+                    </Card>
+
+                </Tabs.TabPane>
+            </Tabs>
         </div>
         <Modal
             title="Add new student"
