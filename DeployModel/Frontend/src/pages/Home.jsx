@@ -63,7 +63,6 @@ function Home() {
 
                 handleClassSubmit();
                 setIsModalVisible(false);
-                message.success('Class added successfully!');
             })
             .catch(info => {
                 console.log('Validate Failed:', info);

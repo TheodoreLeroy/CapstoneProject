@@ -50,11 +50,21 @@ form input[type="submit"]:hover {
 }
 
 .class-container{
+
+  background-color: #fff;
+  
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;  
+
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  background-color: #fff;
+  
+  padding: 20px;
   margin: 10px auto;
+
+  width: 50%;
+  height: fit-content;
 }
 .class-information{
   width: 100vw;

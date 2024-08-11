@@ -1,7 +1,7 @@
 //Libarary
 import { useParams, Link } from "react-router-dom";
 import { Layout, Card, List, Button, Avatar, Modal, Form, Input, TimePicker, notification, Tooltip, Tabs, Table } from 'antd';
-import { PlusOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { PlusOutlined, CheckCircleOutlined, CheckCircleTwoTone, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useEffect, useState } from "react";
 import dayjs from 'dayjs';
 const { Sider } = Layout
@@ -66,11 +66,12 @@ function Class() {
     const dataSource = students?.map(student => ({
         name: student.name,
         ID: student.id,
-        picture: 1, // Adjust based on your student object structure
+        picture: 1,
+        key:  student.id// Adjust based on your student object structure
     })) || [];
 
     //======================================= Form =======================================
-    const [form] = Form.useForm();
+    const [formSlot] = Form.useForm();
 
     // Form add new Slot --------------------------------------------------------------------------------
     const [isModalSlotVisible, setIsModalSlotVisible] = useState(false);
@@ -87,10 +88,10 @@ function Class() {
 
     //get information from form modal
     const handleSlotOk = () => {
-        form
+        formSlot
             .validateFields()
             .then(values => {
-                form.resetFields();
+                formSlot.resetFields();
                 handleSubmitSlot();
                 setIsModalSlotVisible(false);
             })
@@ -124,6 +125,7 @@ function Class() {
 
     // Form add new student --------------------------------------------------------------------------------
     const [isModalStudentVisible, setIsModalStudentVisible] = useState(false);
+    const [formStudent] = Form.useForm();
 
     //open modal
     const showStudentModal = () => {
@@ -137,10 +139,10 @@ function Class() {
 
     //get information from form modal
     const handleStudentOk = () => {
-        form
+        formStudent
             .validateFields()
             .then(values => {
-                form.resetFields();
+                formStudent.resetFields();
                 handleSubmitStudent();
                 console.log(name);
                 
@@ -221,7 +223,7 @@ function Class() {
                                             style={{minWidth: "75px"}}
                                         >
                                             <List.Item.Meta
-                                                avatar={<Avatar icon={<CheckCircleOutlined />} />}
+                                                avatar={slot.status ? <Avatar icon={<CheckCircleTwoTone twoToneColor="#0adf08"/>} /> : <Avatar icon={<CheckCircleOutlined />} />}
                                                 title={slot.subject}
                                                 description={`Time: ${slot.time_start} - ${slot.time_end}`}
                                             />
@@ -272,7 +274,7 @@ function Class() {
             onOk={handleStudentOk}
             onCancel={handleStudentCancel}
         >
-            <Form form={form} layout="vertical" name="add_Student_form">
+            <Form form={formStudent} layout="vertical" name="add_Student_form">
                 <Form.Item
                     name="Student"
                     label="Name"
@@ -292,7 +294,7 @@ function Class() {
             onOk={handleSlotOk}
             onCancel={handleSlotCancel}
         >
-            <Form form={form} layout="vertical" name="add_class_form">
+            <Form form={formSlot} layout="vertical" name="add_class_form">
                 <Form.Item
                     name="subject"
                     label="Subject"
