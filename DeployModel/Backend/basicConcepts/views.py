@@ -3,47 +3,37 @@ from rest_framework import generics
 from .models import *
 from .serializers import *
 
+from rest_framework.response import Response
+from rest_framework import status
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from datetime import datetime, timedelta
 
 # CLASS
 # get list class - url: "class/"
 # create new class- url: "addClass/"
-class ClassListCreate(generics.ListCreateAPIView):
-    serializer_class = ClassSerializer
-
-    def get_queryset(self):
-
-        return Class.objects.all()
-
-    def perform_create(self, serializer):
-        if serializer.is_valid():
-            serializer.save()
-        else:
-            print(serializer.errors)
-
 # get list class that have id - url: "classes/detail/"
-class ClassListDetail(generics.ListCreateAPIView):
-    serializer_class = ClassDetailSerializer
-
-    def get_queryset(self):
-
-        return Class.objects.all()
-
 # get 1 class with id of that class - url: 
-class ClasstDetail(generics.ListCreateAPIView):
-    serializer_class = ClassDetailSerializer
+class ClassView(generics.ListCreateAPIView):
+    def get_serializer_class(self):
+        # Use the appropriate serializer based on the type of request
+        if 'classId' in self.kwargs or self.request.path.endswith('detail'):
+            return ClassDetailSerializer
+        return ClassSerializer
 
     def get_queryset(self):
         class_id = self.kwargs.get('classId')
-        return Class.objects.filter(id = class_id)
-            
-# get list class - urls: "class/delete" - not done
-# class ClassDelete(generics.DestroyAPIView):
-#     serializer_class = ClassSerializer
+        if class_id:
+            return Class.objects.filter(id=class_id)
+        return Class.objects.all()
 
-#     def delete_queryset(self):
-#         id = self.request.id
-#         return Class.objects.filter(id=id)
-
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # STUDENTS
 # get list student - urls: "students/"
@@ -102,7 +92,20 @@ class SlotInfomationFromId(generics.ListCreateAPIView):
     def get_queryset(self):
         id = self.kwargs.get('slotId')
         return Slot.objects.filter(id = id)
+    
+class GetTimeFrame(generics.ListCreateAPIView):
+    serializer_class = TimeFrameSerializer
 
+    def get_queryset(self):
+        id = self.kwargs.get('slotId')
+        return TimeFrame.objects.filter(slot_id = id)
+
+class GetAttendentStudentsAtOneFrame(generics.ListCreateAPIView):
+    serializer_class = AttendentStudentsAtOneFrameSerializer
+
+    def get_queryset(self):
+        timeFrameId = self.kwargs.get('timeFrameId')
+        return AttendentStudentsAtOneFrame.objects.filter(time_frame = timeFrameId)
 
 
 # __________________ HA DJANGO ___________________________

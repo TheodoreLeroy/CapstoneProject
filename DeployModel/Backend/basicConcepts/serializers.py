@@ -26,8 +26,18 @@ class ClassSerializer(serializers.ModelSerializer):
     class Meta:
         model = Class
         fields = ['class_name', 'semester'] 
+
 class ClassDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Class
         fields = '__all__'
-    
+
+class TimeFrameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TimeFrame
+        fields = '__all__'
+
+class AttendentStudentsAtOneFrameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AttendentStudentsAtOneFrame
+        fields = ['embedding', 'student_id', 'time_frame']

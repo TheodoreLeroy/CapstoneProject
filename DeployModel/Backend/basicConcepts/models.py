@@ -26,8 +26,6 @@ class Class(models.Model):
     semester = models.CharField(max_length=50)
     date_time = models.DateTimeField(default=timezone.now)
     
-
-    
 class Camera(models.Model):
     CameraId = models.IntegerField(primary_key=True, default=1, auto_created=True)
     classId = models.ForeignKey(Class, on_delete=models.CASCADE)
@@ -38,6 +36,7 @@ class Slot(models.Model):
     subject = models.CharField(max_length=50)
     time_start = models.TimeField()
     time_end = models.TimeField()
+    status = models.BooleanField(default=False)
     
 class Teacher(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -47,7 +46,6 @@ class Teacher(models.Model):
     email = models.EmailField()
     password = models.CharField(max_length=50)
 
-    
 class Student(models.Model):
     # user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     class_id = models.ForeignKey(Class, on_delete=models.CASCADE)
@@ -67,8 +65,8 @@ class TimeFrame(models.Model):
 # contain all student that model can recognite in one frame. when it have detect face bt can't recognite std_id = null
 class AttendentStudentsAtOneFrame(models.Model):
     embedding = models.JSONField()
-    student_id = models.CharField(max_length=255)
-    time_frame = models.ForeignKey(TimeFrame, on_delete=models.CASCADE, related_name='attendent_students')
+    student_id = models.ForeignKey(Student, on_delete=models.CASCADE)
+    time_frame = models.ForeignKey(TimeFrame, on_delete=models.CASCADE, related_name='time_frame')
 
 # contain last status of slot 
 class Log(models.Model):
