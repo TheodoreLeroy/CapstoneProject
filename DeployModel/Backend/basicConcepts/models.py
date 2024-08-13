@@ -54,7 +54,7 @@ class Student(models.Model):
     name = models.CharField(max_length=50)
     email = models.EmailField()
     password = models.CharField(max_length=16)
-    embedding = models.BinaryField()
+    image = models.ImageField(upload_to='student_images/')
 
 # for each frame in 15 frame in camera
 # embedding for image of total class (first or last in 15 frame)

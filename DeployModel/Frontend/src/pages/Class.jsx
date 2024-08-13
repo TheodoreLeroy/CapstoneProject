@@ -1,7 +1,7 @@
 //Libarary
 import { useParams, Link } from "react-router-dom";
-import { Layout, Card, List, Button, Avatar, Modal, Form, Input, TimePicker, notification, Tooltip, Tabs, Table } from 'antd';
-import { PlusOutlined, CheckCircleOutlined, CheckCircleTwoTone, ExclamationCircleOutlined } from '@ant-design/icons';
+import { Layout, Card, List, Button, Avatar, Modal, Form, Input, TimePicker, notification, Tooltip, Tabs, Table, Image, Upload, message } from 'antd';
+import { PlusOutlined, CheckCircleOutlined, CheckCircleTwoTone, ExclamationCircleOutlined, UploadOutlined } from '@ant-design/icons';
 import { useEffect, useState } from "react";
 import dayjs from 'dayjs';
 const { Sider } = Layout
@@ -37,6 +37,7 @@ function Class() {
 
     //get new student from form
     const [name, setNewStudent] = useState("");
+    const [imageStudent, setImageStudent] = useState(null);
 
 
     // ======================================= get data =======================================
@@ -66,8 +67,11 @@ function Class() {
     const dataSource = students?.map(student => ({
         name: student.name,
         ID: student.id,
-        picture: 1,
-        key:  student.id// Adjust based on your student object structure
+        picture: <Image
+            width={200}
+            src={student.image}
+        />,
+        key: student.id// Adjust based on your student object structure
     })) || [];
 
     //======================================= Form =======================================
@@ -144,8 +148,6 @@ function Class() {
             .then(values => {
                 formStudent.resetFields();
                 handleSubmitStudent();
-                console.log(name);
-                
                 setIsModalStudentVisible(false);
             })
             .catch(info => {
@@ -153,12 +155,32 @@ function Class() {
             });
     };
 
+
+    const handleFileChange = (info) => {
+        const data = info.file.originFileObj           
+        setImageStudent(data);
+        console.log(imageStudent);
+        
+    };
+        
+
     //sent data to backend
     const handleSubmitStudent = async () => {
         const email = name.replace(/\s/g, "").concat('', (students.length + 1)).concat('', "@gmail.com")
         const password = "123456"
+
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('email', email);
+        formData.append('password', password);
+        formData.append('class_id', idClass);
+        formData.append('image', imageStudent);
+
+        console.log(imageStudent);
+        
+
         try {
-            const res = await api.post(`studentsClass${idClass}/`, { name, email, password, class_id: idClass });
+            const res = await api.post(`studentsClass${idClass}/`, formData);
             if (res.status === 201) {
                 notification.success({
                     message: 'Success',
@@ -175,6 +197,8 @@ function Class() {
                 placement: 'topRight',
                 duration: 3,
             });
+            console.log(error);
+
         }
     };
 
@@ -220,10 +244,10 @@ function Class() {
                                     <Link to={`/class/${idClass}/slot/${slot.id}`}>
                                         <Card
                                             hoverable={true}
-                                            style={{minWidth: "75px"}}
+                                            style={{ minWidth: "75px" }}
                                         >
                                             <List.Item.Meta
-                                                avatar={slot.status ? <Avatar icon={<CheckCircleTwoTone twoToneColor="#0adf08"/>} /> : <Avatar icon={<CheckCircleOutlined />} />}
+                                                avatar={slot.status ? <Avatar icon={<CheckCircleTwoTone twoToneColor="#0adf08" />} /> : <Avatar icon={<CheckCircleOutlined />} />}
                                                 title={slot.subject}
                                                 description={`Time: ${slot.time_start} - ${slot.time_end}`}
                                             />
@@ -259,6 +283,7 @@ function Class() {
                                     title: 'Picture',
                                     dataIndex: 'picture',
                                     key: 'picture',
+                                    render: (text) => <div style={{ textAlign: 'center' }}>{text}</div>,
                                 },
                             ]}
                             dataSource={dataSource}
@@ -276,15 +301,29 @@ function Class() {
         >
             <Form form={formStudent} layout="vertical" name="add_Student_form">
                 <Form.Item
-                    name="Student"
+                    name="Student's name"
                     label="Name"
-                    rules={[{ required: true, message: 'Please input the Namr!' }]}
+                    rules={[{ required: true, message: "Please input Student's name!" }]}
                 >
                     <Input
                         onChange={(e) => {
                             setNewStudent(e.target.value)
                         }}
                     />
+                </Form.Item>
+                <Form.Item
+                    name="Student's image"
+                    label="Student's image"
+                    rules={[{ required: true, message: "Please input Student's image!" }]}
+                >
+                    <Upload
+                        beforeUpload={() => false} // Prevent automatic upload
+                        onChange={handleFileChange}
+                        maxCount={1}
+                        
+                    >
+                        <Button icon={<UploadOutlined />}>Select File</Button>
+                    </Upload>
                 </Form.Item>
             </Form>
         </Modal>

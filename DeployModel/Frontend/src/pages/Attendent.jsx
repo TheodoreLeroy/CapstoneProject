@@ -1,6 +1,6 @@
 //import from libarary
 import React, { useState, useEffect } from 'react';
-import { Layout, Card, Table, Tabs, Button } from 'antd';
+import { Layout, Card, Table, Tabs, Image } from 'antd';
 const { TabPane } = Tabs;
 import { PlusOutlined, CheckCircleOutlined, CheckCircleTwoTone, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useParams } from "react-router-dom";
@@ -65,12 +65,20 @@ function Attendent() {
     const dataSource = students?.map(student => ({
         name: student.name,
         ID: student.id,
-        picture: 1, // Adjust based on your student object structure
+        picture: 1,
+        picture: <Image
+            width={200}
+            src={student.image}
+        />, // Adjust based on your student object structure
     })) || [];
     const dataSourceAtOneFrame = studentsInOneFrame?.map(student => ({
         name: student.name,
         ID: student.id,
-        picture: 1, // Adjust based on your student object structure
+        picture: 1,
+        picture: <Image
+            width={200}
+            src={student.image}
+        />, // Adjust based on your student object structure
     })) || [];
 
     const tableStudent = (dataSource) => {
@@ -80,6 +88,7 @@ function Attendent() {
                     title: 'Name',
                     dataIndex: 'name',
                     key: 'name',
+                    render: (image) => <div style={{ fontSize: "20px" }}>{image}</div>,
                 },
                 {
                     title: 'ID',
@@ -90,6 +99,7 @@ function Attendent() {
                     title: 'Picture',
                     dataIndex: 'picture',
                     key: 'picture',
+                    render: (image) => <div style={{ textAlign: 'center' }}>{image}</div>,
                 },
             ]}
             dataSource={dataSource}

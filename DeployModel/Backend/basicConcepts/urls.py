@@ -1,10 +1,13 @@
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [   
 
     # User
     path("students/", views.StudentList.as_view(), name="student-list"),
+    path("students/add", views.StudentList.as_view(), name="student-list"),
     path("studentsClass<int:classId>/", views.StudentFromClassId.as_view(), name="student-list-from-class-id"),
     
     # Class
@@ -25,3 +28,6 @@ urlpatterns = [
     #attentdent
     # path("class<int:classId>/slot<int:classId>/", views.SlotInfomationFromIdClass.as_view(), name="slot-information-from-one-class"),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

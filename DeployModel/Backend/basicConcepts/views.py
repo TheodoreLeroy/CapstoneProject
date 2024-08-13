@@ -21,6 +21,8 @@ class ClassView(generics.ListCreateAPIView):
             return ClassDetailSerializer
         return ClassSerializer
 
+    
+
     def get_queryset(self):
         class_id = self.kwargs.get('classId')
         if class_id:
