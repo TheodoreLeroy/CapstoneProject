@@ -88,7 +88,7 @@ function Attendent() {
                     title: 'Name',
                     dataIndex: 'name',
                     key: 'name',
-                    render: (image) => <div style={{ fontSize: "20px" }}>{image}</div>,
+                    render: (image) => <div style={{ fontSize: "15px" }}>{image}</div>,
                 },
                 {
                     title: 'ID',
