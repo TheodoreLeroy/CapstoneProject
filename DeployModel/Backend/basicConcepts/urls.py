@@ -39,6 +39,8 @@ urlpatterns = [
     # Delete slot
     path('deleteSlot/<int:slotId>/',
          views.SlotInformation.as_view(), name='delete_slot'),
+
+
     path("slot/", views.SlotInformation.as_view(), name="slot-information"),
     path("classes/<int:classId>/slot/", views.SlotInformationFromIdClass.as_view(),
          name="slot-information-from-one-class"),

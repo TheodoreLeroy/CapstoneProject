@@ -6,23 +6,12 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 import os
+
 # Create your models here.
 # Create teacher and student group
 # teacher_group, created = Group.objects.get_or_create(name='Teacher')
 # student_group, created = Group.objects.get_or_create(name='Student')
 from pathlib import Path
-
-
-def student_image_path(instance, filename):
-    # Define the directory path based on the class name
-    directory = os.path.join('classes',
-                             str(instance.class_id.class_name))
-    # Create the directory if it doesn't exist
-    # if not os.path.exists(directory):
-    #     os.makedirs(directory, exist_ok=True)
-    # Return the path to the file within the directory
-    return os.path.join(directory, filename)
-# Add auth to teacher
 
 
 class CustomUser(AbstractUser):
@@ -65,6 +54,12 @@ class Teacher(models.Model):
 
 
 class Student(models.Model):
+    def student_image_path(instance, filename):
+        # clas_name = Class.objects.filter(id=instance.class_id_id)
+        clas_name = instance.class_id.class_name
+        # File will be uploaded to MEDIA_ROOT/Data/classes/<class_name>/<student_id>_<student_name>.jpg
+        return f'Data/classes/{clas_name}/{instance.class_id_id}_{instance.name}.jpg'
+
     # user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     class_id = models.ForeignKey(Class, on_delete=models.CASCADE)
     # slot_id = models.ForeignKey(Slot, on_delete=models.CASCADE)
@@ -73,6 +68,9 @@ class Student(models.Model):
     email = models.EmailField()
     password = models.CharField(max_length=16)
     image = models.ImageField(upload_to=student_image_path)
+
+
+# Add auth to teacher
 
 # for each frame in 15 frame in camera
 # embedding for image of total class (first or last in 15 frame)

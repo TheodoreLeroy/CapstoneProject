@@ -1,4 +1,5 @@
-from .forms import ClassForm
+import cv2
+# from .forms import ClassForm
 from django.shortcuts import render, redirect
 from rest_framework import generics
 from .models import *
@@ -13,7 +14,7 @@ from PIL import Image
 from io import BytesIO
 from django.core.files.base import ContentFile
 import os
-
+import requests
 # CLASS
 # get list class - url: "class/"
 # create new class- url: "addClass/"
@@ -106,10 +107,20 @@ class StudentFromClassId(generics.ListCreateAPIView):
 
                     # Resize the image while maintaining aspect ratio
                     image.thumbnail((max_width, max_height), Image.LANCZOS)
+
+                    # Convert the image to RGB mode if it has an alpha channel
+                    if image.mode == 'RGBA':
+                        image = image.convert('RGB')
                     img_io = BytesIO()
                     image.save(img_io, format='JPEG')
-                    student.image.save(student.image.name, ContentFile(
-                        img_io.getvalue()), save=False)
+
+                    # Generate the filename
+                    # student_id = student.id
+                    # student_name = student.name.replace(" ", "_")
+                    # filename = f"{student_id}_{student_name}.jpg"
+
+                    # student.image.save(filename, ContentFile(
+                    #     img_io.getvalue()), save=False)
                     student.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
@@ -172,6 +183,31 @@ class SlotInformationFromIdClass(generics.ListCreateAPIView):
         id = self.kwargs.get('classId')
         return Slot.objects.filter(class_id=id)
 
+# class RunCameraInSlot(generics.ListCreateAPIView):
+
+
+# Process image api
+class ProcessImageView(generics.ListCreateAPIView):
+    def post(self, request, *args, **kwargs):
+        # Get the image from the request
+        image = request.FILES.get('image')
+
+        if not image:
+            return JsonResponse({'error': 'No image provided'}, status=400)
+
+        # Prepare the files for the API request
+        files = {'image': (image.name, image, image.content_type)}
+
+        # Send the request to the external API
+        response = requests.post(
+            'http://127.0.0.1:5001/process_image', files=files)
+
+        if response.status_code == 200:
+            data = response.json()
+            return JsonResponse(data)
+        else:
+            return JsonResponse({'error': 'Failed to process image'}, status=response.status_code)
+
 # Get 1 slot-information with id - url: "slot<int:slotId>/"
 
 
@@ -199,17 +235,97 @@ class GetAttendentStudentsAtOneFrame(generics.ListCreateAPIView):
         return AttendentStudentsAtOneFrame.objects.filter(time_frame=timeFrameId)
 
 
+# Connect to camera
+
+
+# class CameraHandle(generics.ListCreateAPIView):
+#     # Initialize the camera
+#     cap = cv2.VideoCapture(0)  # 0 is the default camera
+
+#     while True:
+#         # Capture frame-by-frame
+#         ret, frame = cap.read()
+
+#         # Display the resulting frame
+#         cv2.imshow('frame', frame)
+
+#         # Break the loop on 'q' key press
+#         if cv2.waitKey(1) & 0xFF == ord('q'):
+#             break
+
+#     # Release the capture and close the window
+#     cap.release()
+#     cv2.destroyAllWindows()
+
 # __________________ HA DJANGO ___________________________
 
 
 # add Class
 
-def add_class(request):
-    if request.method == 'POST':
-        form = ClassForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('class_list')
+# def test():
+#     # Initialize the camera
+#     cap = cv2.VideoCapture(0)  # 0 is the default camera
+#     img_counter = 0
+#     while True:
+#         # Capture frame-by-frame
+#         ret, frame = cap.read()
+#         if not ret:
+#             print("failed to grab frame")
+#             break
+#         # Display the resulting frame
+#         cv2.imshow('frame', frame)
+
+#         # Break the loop on 'q' key press
+#         if cv2.waitKey(1) & 0xFF == ord('q'):
+#             print("Quitting")
+#             break
+#         elif cv2.waitKey(1) & 0xFF == ord(' '):
+#             img_name = "myPic_{}.png".format(img_counter)
+#             cv2.imwrite(img_name, frame)
+#             print("{} written".format(img_name))
+#             img_counter += 1
+
+#     # Release the capture and close the window
+#     cap.release()
+#     cv2.destroyAllWindows()
+
+
+def post():
+    # Get the image from the request
+    # image = request.FILES.get('image')
+
+    # if not image:
+    #     return JsonResponse({'error': 'No image provided'}, status=400)
+    image_path = "myPic_0.png"
+
+    with open(image_path, "rb") as image_file:
+        files = {"image": ("test_image.jpg", image_file, "image/jpeg")}
+        # Send the request to the external API
+        response = requests.post(
+            'http://127.0.0.1:5001/process_image', files=files)
+
+    if response.status_code == 200:
+        print("API request successful")
+        data = response.json()
+        return JsonResponse(data)
     else:
-        form = ClassForm()
-    return render(request, 'add_class.html', {'form': form})
+        return JsonResponse({'error': 'Failed to process image'}, status=response.status_code)
+
+
+def test_and_draw():
+    data = post()
+    # Print the received data
+    print("Received boxes:", data['boxes'])
+    print("Received embeddings shape:", [len(emb)
+          for emb in data['embeddings']])
+
+    # image = cv2.imread("myPic_0.png")
+    # draw = cv2.imshow("test", image)
+
+    # for box in data['boxes']:
+    #     x1, x2, y1, y2 = box
+    #     draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
+
+
+# test()
+# test_and_draw()

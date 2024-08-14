@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "rest_framework",
     'basicConcepts',
     'corsheaders',
+    'src',
 ]
 
 MIDDLEWARE = [
@@ -128,5 +129,5 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'Data')
+MEDIA_ROOT = os.path.join(BASE_DIR)
 MEDIA_URL = '/media/'

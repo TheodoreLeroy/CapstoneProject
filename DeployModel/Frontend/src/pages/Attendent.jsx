@@ -43,7 +43,7 @@ function Attendent() {
   }, []);
 
   const getClass = async () => {
-    const classData = await GetDataFromRoute(`class${params.idClass}/`);
+    const classData = await GetDataFromRoute(`classes/${params.idClass}/`);
     setClassName(classData[0].class_name);
   };
 
@@ -59,7 +59,7 @@ function Attendent() {
 
   const getStudent = async () => {
     const studentsData = await GetDataFromRoute(
-      `studentsClass${params.idClass}/`
+      `addStudent/${params.idClass}/`
     );
     setStudents(studentsData);
   };
@@ -83,7 +83,7 @@ function Attendent() {
       name: student.name,
       ID: student.id,
       //   picture: 1,
-      picture: <Image width={200} src={student.image} />, // Adjust based on your student object structure
+      picture: <Image width={128} src={student.image} />, // Adjust based on your student object structure
     })) || [];
 
   const tableStudent = (dataSource) => {
@@ -105,9 +105,10 @@ function Attendent() {
             title: "Picture",
             dataIndex: "picture",
             key: "picture",
-            render: (image) => (
-              <div style={{ textAlign: "center" }}>{image}</div>
-            ),
+            render: (image) => <div style={{ textAlign: "left" }}>{image}</div>,
+          },
+          {
+            title: "Attend status",
           },
         ]}
         dataSource={dataSource}
