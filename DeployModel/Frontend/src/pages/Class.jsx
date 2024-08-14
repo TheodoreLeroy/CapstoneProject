@@ -28,7 +28,7 @@ import {
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 const { Sider } = Layout;
-
+import { DeleteOutlined } from "@ant-design/icons";
 //Compoment and api
 import Logo from "../compoment/Logo";
 import MenuList from "../compoment/MenuList";
@@ -70,26 +70,26 @@ function Class() {
 
   //get data Class
   const getClass = async () => {
-    const classData = await GetDataFromRoute(`class${idClass}/`);
+    const classData = await GetDataFromRoute(`classes/${idClass}/`);
     setClassDetail(classData[0]);
   };
 
   //get data slots of class
   const getSlot = async () => {
-    const slotData = await GetDataFromRoute(`class${idClass}/slot/`);
+    const slotData = await GetDataFromRoute(`classes/${idClass}/slot/`);
     setSlots(slotData);
   };
 
   //get data Students of class
   const getStudent = async () => {
-    const studentsData = await GetDataFromRoute(`studentsClass${idClass}/`);
+    const studentsData = await GetDataFromRoute(`students/${idClass}/`);
     setStudents(studentsData);
   };
   const dataSource =
     students?.map((student) => ({
       name: student.name,
       ID: student.id,
-      picture: <Image width={200} src={student.image} />,
+      picture: <Image width={128} src={student.image} />,
       key: student.id, // Adjust based on your student object structure
     })) || [];
 
@@ -127,7 +127,7 @@ function Class() {
   //create new slot
   const handleSubmitSlot = async () => {
     try {
-      const res = await api.post(`class${idClass}/createSlot`, {
+      const res = await api.post(`classes/${idClass}/createSlot`, {
         class_id: idClass,
         subject,
         time_start,
@@ -141,6 +141,29 @@ function Class() {
           duration: 3,
         });
         getSlot();
+      }
+    } catch (error) {
+      notification.error({
+        message: "Error",
+        description: error.message,
+        placement: "topRight",
+        duration: 3,
+      });
+    }
+  };
+
+  //Delete slot
+  const handleDeleteSlot = async (slotId) => {
+    try {
+      const res = await api.delete(`deleteSlot/${slotId}/`);
+      if (res.status === 204) {
+        notification.success({
+          message: "Success",
+          description: `Class deleted successfully!`,
+          placement: "topRight",
+          duration: 3,
+        });
+        getClass(); // Refresh the list of classes
       }
     } catch (error) {
       notification.error({
@@ -180,10 +203,18 @@ function Class() {
       });
   };
 
+  // const handleFileChange = (info) => {
+  //   const data = info.file.originFileObj;
+  //   setImageStudent(data);
+  //   console.log(imageStudent);
+  // };
+
   const handleFileChange = (info) => {
-    const data = info.file.originFileObj;
-    setImageStudent(data);
-    console.log(imageStudent);
+    if (info.fileList.length > 0) {
+      setImageStudent(info.fileList[0].originFileObj);
+    } else {
+      setImageStudent(null);
+    }
   };
 
   //sent data to backend
@@ -204,7 +235,7 @@ function Class() {
     console.log(imageStudent);
 
     try {
-      const res = await api.post(`studentsClass${idClass}/`, formData);
+      const res = await api.post(`addStudent/${idClass}/`, formData);
       if (res.status === 201) {
         notification.success({
           message: "Success",
@@ -222,6 +253,17 @@ function Class() {
         duration: 3,
       });
       console.log(error);
+    }
+  };
+  const handleDelete = async (studentId) => {
+    try {
+      await axios.delete(`/students/${classId}/${studentId}/`);
+      message.success("Student deleted successfully");
+      // Refresh the data source after deletion
+      // You might need to fetch the updated list of students here
+    } catch (error) {
+      console.log(error);
+      message.error("Failed to delete student");
     }
   };
 
@@ -274,7 +316,7 @@ function Class() {
                 dataSource={slots}
                 renderItem={(slot) => (
                   <List.Item>
-                    <Link to={`/class/${idClass}/slot/${slot.id}`}>
+                    <Link to={`/classes/${idClass}/slot/${slot.id}`}>
                       <Card hoverable={true} style={{ minWidth: "75px" }}>
                         <List.Item.Meta
                           avatar={
@@ -293,6 +335,14 @@ function Class() {
                         />
                       </Card>
                     </Link>
+                    <Button
+                      type="danger"
+                      icon={<DeleteOutlined />}
+                      onClick={() => handleDeleteSlot(slot.id)}
+                      style={{ marginTop: "10px" }}
+                    >
+                      Delete
+                    </Button>
                   </List.Item>
                 )}
               />
@@ -332,7 +382,20 @@ function Class() {
                     dataIndex: "picture",
                     key: "picture",
                     render: (text) => (
-                      <div style={{ textAlign: "center" }}>{text}</div>
+                      <div style={{ textAlign: "left" }}>{text}</div>
+                    ),
+                  },
+                  {
+                    title: "Action",
+                    key: "action",
+                    render: (text, record) => (
+                      <Button
+                        type="danger"
+                        icon={<DeleteOutlined />}
+                        onClick={() => handleDelete(record.ID)}
+                      >
+                        Delete
+                      </Button>
                     ),
                   },
                 ]}

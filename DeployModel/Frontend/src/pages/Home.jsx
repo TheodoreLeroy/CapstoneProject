@@ -84,17 +84,16 @@ function Home() {
   //url: addClass/ - data: class_name, semester
   const handleClassSubmit = async () => {
     try {
-      api.post("addClass/", { class_name, semester }).then((res) => {
-        if (res.status === 201) {
-          notification.success({
-            message: "Success",
-            description: `Class created successfully!`,
-            placement: "topRight",
-            duration: 3,
-          });
-          getClass();
-        }
-      });
+      const res = await api.post("addClass/", { class_name, semester });
+      if (res.status === 201) {
+        notification.success({
+          message: "Success",
+          description: `Class created successfully!`,
+          placement: "topRight",
+          duration: 3,
+        });
+        getClass();
+      }
     } catch (Error) {
       notification.error({
         message: "Error",
@@ -159,7 +158,9 @@ function Home() {
                       actions={[
                         <Button
                           type="link"
-                          onClick={(e) => navigate(`/class/${classDetail.id}/`)}
+                          onClick={(e) =>
+                            navigate(`/classes/${classDetail.id}`)
+                          }
                         >
                           View
                         </Button>,
