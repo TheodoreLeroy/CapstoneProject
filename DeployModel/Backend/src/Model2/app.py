@@ -14,7 +14,6 @@ app = FastAPI()
 
 # Load the pre-trained face embedding model
 model = InceptionResnetV1(pretrained='vggface2')
-# checkpoint = torch.load('src/trained_model/20180402-114759-vggface2.pt')
 checkpoint = torch.load(
     'src/trained_model/20180402-114759-vggface2.pt')
 model.load_state_dict(checkpoint)
