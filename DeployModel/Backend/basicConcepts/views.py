@@ -15,6 +15,8 @@ from io import BytesIO
 from django.core.files.base import ContentFile
 import os
 import requests
+import torch
+from torchvision import models, transforms
 # CLASS
 # get list class - url: "class/"
 # create new class- url: "addClass/"
@@ -96,6 +98,8 @@ class StudentFromClassId(generics.ListCreateAPIView):
         else:
             print(serializer.errors)
 
+    # Convert image to embedding type
+
     def create(self, request, *args, **kwargs):
         try:
             serializer = self.get_serializer(data=request.data)
@@ -104,7 +108,7 @@ class StudentFromClassId(generics.ListCreateAPIView):
                 if 'image' in request.FILES:
                     image = Image.open(request.FILES['image'])
                     max_width, max_height = 300, 300  # Desired size
-
+                    imageEmbedd = image
                     # Resize the image while maintaining aspect ratio
                     image.thumbnail((max_width, max_height), Image.LANCZOS)
 
@@ -113,15 +117,24 @@ class StudentFromClassId(generics.ListCreateAPIView):
                         image = image.convert('RGB')
                     img_io = BytesIO()
                     image.save(img_io, format='JPEG')
-
-                    # Generate the filename
-                    # student_id = student.id
-                    # student_name = student.name.replace(" ", "_")
-                    # filename = f"{student_id}_{student_name}.jpg"
-
-                    # student.image.save(filename, ContentFile(
-                    #     img_io.getvalue()), save=False)
                     student.save()
+
+                    # Send image to external API
+                    with open('myPic_0.png', 'rb') as image_file:
+                        files = {
+                            "image": ("test_image.jpg", image_file, "image/jpeg")}
+                        response = requests.post(
+                            'http://127.0.0.1:5001/process_image', files=files)
+                    if response.status_code == 200:
+                        print("API request success")
+                        data = response.json()
+                        print("Received boxes:", data['boxes'])
+                        print("Received embeddings shape:", [
+                            len(emb) for emb in data['embeddings']])
+                        # You can process the received data here as needed
+                    else:
+                        return Response({'error': 'Failed to process image'}, status=response.status_code)
+
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 print(serializer.errors)
@@ -142,6 +155,7 @@ class StudentFromClassId(generics.ListCreateAPIView):
         except Exception as e:
             print(f"Error: {e}")
             return Response({"detail": "Internal Server Error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 # SLOT
 # get slot-infomation - url: "slot/"
