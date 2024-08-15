@@ -32,6 +32,11 @@ class ClassDetailSerializer(serializers.ModelSerializer):
         model = Class
         fields = '__all__'
 
+class CameraInfor(serializers.ModelSerializer):
+    class Meta:
+        model = Camera
+        fields = '__all__'
+
 class TimeFrameSerializer(serializers.ModelSerializer):
     class Meta:
         model = TimeFrame

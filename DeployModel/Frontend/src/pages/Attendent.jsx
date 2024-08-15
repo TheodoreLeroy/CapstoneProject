@@ -1,6 +1,18 @@
 //import from libarary
 import React, { useState, useEffect } from "react";
-import { Layout, Card, Table, Tabs, Image, Row, Col, Typography, Button, Tooltip, Progress } from "antd";
+import {
+  Layout,
+  Card,
+  Table,
+  Tabs,
+  Image,
+  Row,
+  Col,
+  Typography,
+  Button,
+  Tooltip,
+  Progress,
+} from "antd";
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -23,6 +35,7 @@ import GetDataFromRoute from "../compoment/GetDataFromBackend";
 //CSS
 import "../styles/Attendent.css";
 import "../styles/Sidebar.css";
+import api from "../api";
 
 function Attendent() {
   let params = useParams();
@@ -45,15 +58,13 @@ function Attendent() {
     getTimeFrame();
   }, []);
 
-
-
   // ===================================================== TIMER =====================================================
   useEffect(() => {
     let interval;
 
     if (isRunning && time > 0) {
       interval = setInterval(() => {
-        setTime(prevTime => {
+        setTime((prevTime) => {
           if (prevTime <= 1000) {
             clearInterval(interval);
             setIsRunning(false);
@@ -79,13 +90,12 @@ function Attendent() {
   };
 
   const formatTime = (time) => {
-    const seconds = (`0${Math.floor((time / 1000) % 60)}`).slice(-2);
-    const minutes = (`0${Math.floor((time / 60000) % 60)}`).slice(-2);
-    const hours = (`0${Math.floor(time / 3600000)}`).slice(-2);
+    const seconds = `0${Math.floor((time / 1000) % 60)}`.slice(-2);
+    const minutes = `0${Math.floor((time / 60000) % 60)}`.slice(-2);
+    const hours = `0${Math.floor(time / 3600000)}`.slice(-2);
 
     return `${hours}:${minutes}:${seconds}`;
   };
-
 
   // ===================================================== GET DATA =====================================================
   const getClass = async () => {
@@ -98,14 +108,15 @@ function Attendent() {
     setSlotInfomation(slotData[0]);
     const durationData = dayjs(slotData[0].time_end, "HH:mm:ss").diff(
       dayjs(slotData[0].time_start, "HH:mm:ss")
-    )
+    );
 
     const hours = Math.floor(durationData / 3600000);
     const minutes = Math.floor((durationData % 3600000) / 60000);
 
-    setDuration(
-      [`${String(hours).padStart(2, '0')}h${String(minutes).padStart(2, '0')}p`, durationData]
-    );
+    setDuration([
+      `${String(hours).padStart(2, "0")}h${String(minutes).padStart(2, "0")}p`,
+      durationData,
+    ]);
   };
 
   const getStudent = async () => {
@@ -136,10 +147,6 @@ function Attendent() {
       //   picture: 1,
       picture: <Image width={128} src={student.image} />, // Adjust based on your student object structure
     })) || [];
-
-
-
-
 
   const tableStudent = (dataSource) => {
     return (
@@ -184,12 +191,50 @@ function Attendent() {
     }
   };
 
-  const handleClockClick = () => {
+  const handleClockClick = async () => {
     setIsRunning(!isRunning);
     setTimer();
-  }
-  const progressPercent = (duration[1] > 0) ? (100 -(time / duration[1]) * 100) : 0;
-  
+    try {
+      const response = await api.post("slot/camera/");
+      notification.success({
+        message: "Success",
+        description: response.data.status,
+        placement: "topRight",
+        duration: 3,
+      });
+    } catch (error) {
+      notification.error({
+        message: "Error",
+        description: error.message,
+        placement: "topRight",
+        duration: 3,
+      });
+    }
+  };
+
+  // const handleClockClick = useCallback(async () => {
+  //   setIsRunning(!isRunning);
+  //   setTimer();
+  //   try {
+  //     const response = await api.post("/slot/camera");
+  //     notification.success({
+  //       message: "Success",
+  //       description: response.data.status,
+  //       placement: "topRight",
+  //       duration: 3,
+  //     });
+  //   } catch (error) {
+  //     notification.error({
+  //       message: "Error",
+  //       description: error.message,
+  //       placement: "topRight",
+  //       duration: 3,
+  //     });
+  //   }
+  // }, [isRunning]);
+
+  const progressPercent =
+    duration[1] > 0 ? 100 - (time / duration[1]) * 100 : 0;
 
   return (
     <Layout>
@@ -204,16 +249,22 @@ function Attendent() {
           bordered={false}
           style={{ minWidth: "500px", paddingBottom: "0px" }}
           extra={
-            <Tooltip
-              title={!isRunning ? "Start slot" : "End slot"}>
+            <Tooltip title={!isRunning ? "Start slot" : "End slot"}>
               <Button
                 type="primary"
-                icon={<ClockCircleTwoTone twoToneColor={!isRunning ? "#1677ff" : "#0ADF08"} />}
+                icon={
+                  <ClockCircleTwoTone
+                    twoToneColor={!isRunning ? "#1677ff" : "#0ADF08"}
+                  />
+                }
                 shape="circle"
                 onClick={handleClockClick}
-                style={!isRunning ? { backgroundColor: "#1677ff" } : { backgroundColor: "#0ADF08" }}
-              >
-              </Button>
+                style={
+                  !isRunning
+                    ? { backgroundColor: "#1677ff" }
+                    : { backgroundColor: "#0ADF08" }
+                }
+              ></Button>
             </Tooltip>
           }
         >
@@ -226,7 +277,7 @@ function Attendent() {
             </Col>
           </Row>
 
-          <Row style={{ marginTop: '10px' }}>
+          <Row style={{ marginTop: "10px" }}>
             <Col span={8}>
               <Text strong>Class:</Text>
             </Col>
@@ -235,16 +286,19 @@ function Attendent() {
             </Col>
           </Row>
 
-          <Row style={{ marginTop: '10px' }}>
+          <Row style={{ marginTop: "10px" }}>
             <Col span={8}>
               <Text strong>Date:</Text>
             </Col>
             <Col span={16}>
-              <Text>{dayjs(slotInfomation.time_start, "HH:mm:ss").format('HH:mm A')} - {dayjs(slotInfomation.time_end, "HH:mm:ss").format('HH:mm A')}</Text>
+              <Text>
+                {dayjs(slotInfomation.time_start, "HH:mm:ss").format("HH:mm A")}{" "}
+                - {dayjs(slotInfomation.time_end, "HH:mm:ss").format("HH:mm A")}
+              </Text>
             </Col>
           </Row>
 
-          <Row style={{ marginTop: '10px' }}>
+          <Row style={{ marginTop: "10px" }}>
             <Col span={8}>
               <Text strong>Duration:</Text>
             </Col>
@@ -252,19 +306,19 @@ function Attendent() {
               <Text>{duration[0]}</Text>
             </Col>
           </Row>
-          <Row style={{ marginTop: '10px' }}>
-            <Col span={8} style={{margin: "auto"}}>
-              <Text >Time:  {formatTime(time)}</Text>
-           </Col>
+          <Row style={{ marginTop: "10px" }}>
+            <Col span={8} style={{ margin: "auto" }}>
+              <Text>Time: {formatTime(time)}</Text>
+            </Col>
             <Col span={16}>
               <Progress
                 percent={progressPercent}
                 strokeColor="rgb(24, 144, 255)"
-                style={{ marginTop: '10px', marginBottom: '10px' }}
+                style={{ marginTop: "10px", marginBottom: "10px" }}
                 showInfo={false}
               />
-           </Col>
-          </Row>         
+            </Col>
+          </Row>
         </Card>
         <Tabs
           defaultActiveKey="1"

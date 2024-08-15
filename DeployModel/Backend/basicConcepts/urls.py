@@ -46,6 +46,8 @@ urlpatterns = [
          name="slot-information-from-one-class"),
     path("slot<int:slotId>/", views.SlotInformationFromId.as_view(),
          name="one-slot-information"),
+    path("slot/camera/",
+         views.CameraHandle.as_view(), name="camera_on"),
 
 
     # Log
