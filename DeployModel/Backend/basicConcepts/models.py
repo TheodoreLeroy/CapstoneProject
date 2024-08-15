@@ -60,7 +60,7 @@ class Student(models.Model):
         # clas_name = Class.objects.filter(id=instance.class_id_id)
         clas_name = instance.class_id.class_name
         # File will be uploaded to MEDIA_ROOT/Data/classes/<class_name>/<student_id>_<student_name>.jpg
-        return f'Data/classes/{clas_name}/{instance.student_id}_{instance.name}.jpg'
+        return f'Data/classes/{clas_name}/{instance.student_id}_{instance.name}/{instance.student_id}_{instance.name}.jpg'
 
     student_id = models.AutoField(primary_key=True)
     # user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -73,14 +73,6 @@ class Student(models.Model):
     # image = models.ImageField()
     image = models.ImageField(upload_to=student_image_path)
 
-
-# @receiver(pre_save, sender=Student)
-# def set_student_image_path(sender, instance, **kwargs):
-#     if not hasattr(instance, '_already_saved'):
-#         instance._already_saved = True
-#         instance.save()
-#     instance.image.name = instance.student_image_path(instance.image.name)
-# Add auth to teacher
 
 # for each frame in 15 frame in camera
 # embedding for image of total class (first or last in 15 frame)

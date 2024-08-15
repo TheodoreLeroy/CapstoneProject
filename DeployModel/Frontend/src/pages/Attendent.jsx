@@ -84,6 +84,7 @@ function Attendent() {
     }
   };
 
+  // nope
   const setTimer = () => {
     const milliseconds = duration[1]; // Convert minutes to milliseconds
     setTime(milliseconds);
@@ -195,7 +196,7 @@ function Attendent() {
     setIsRunning(!isRunning);
     setTimer();
     try {
-      const response = await api.post("slot/camera/");
+      const response = await api.post("slot/camera/", {});
       notification.success({
         message: "Success",
         description: response.data.status,
@@ -211,27 +212,6 @@ function Attendent() {
       });
     }
   };
-
-  // const handleClockClick = useCallback(async () => {
-  //   setIsRunning(!isRunning);
-  //   setTimer();
-  //   try {
-  //     const response = await api.post("/slot/camera");
-  //     notification.success({
-  //       message: "Success",
-  //       description: response.data.status,
-  //       placement: "topRight",
-  //       duration: 3,
-  //     });
-  //   } catch (error) {
-  //     notification.error({
-  //       message: "Error",
-  //       description: error.message,
-  //       placement: "topRight",
-  //       duration: 3,
-  //     });
-  //   }
-  // }, [isRunning]);
 
   const progressPercent =
     duration[1] > 0 ? 100 - (time / duration[1]) * 100 : 0;

@@ -89,7 +89,24 @@ class StudentList(generics.ListCreateAPIView):
             print(serializer.errors)
 
 
+def handleFilePath(file_path):
+    file_path_str = str(file_path)
+    path_components = file_path_str.split('/')
+
+    # new_component = 'students'
+    # path_components.insert(-1, new_component)
+
+    name, ext = os.path.splitext(path_components[-1])
+
+    new_file_name = name + '.txt'
+    path_components.append(new_file_name)
+
+    new_file_path = '/'.join(path_components)
+    return new_file_path
+
 # get list student - urls: "studentsClass<int:classId>/"
+
+
 class StudentFromClassId(generics.ListCreateAPIView):
     serializer_class = StdSerializers
 
@@ -106,19 +123,6 @@ class StudentFromClassId(generics.ListCreateAPIView):
     # Convert image to embedding type
 
     def create(self, request, *args, **kwargs):
-        def handleFilePath(file_path):
-            file_path_str = str(file_path)
-            path_components = file_path_str.split('/')
-
-            new_component = 'embedding'
-            path_components.insert(-1, new_component)
-
-            name, ext = os.path.splitext(path_components[-1])
-            new_file_name = name + '.txt'
-            path_components[-1] = new_file_name
-
-            new_file_path = '/'.join(path_components)
-            return new_file_path
 
         try:
             serializer = self.get_serializer(data=request.data)
@@ -132,7 +136,7 @@ class StudentFromClassId(generics.ListCreateAPIView):
                     email=validated_data['email'],
                     password=validated_data['password']
                 )
-
+                os.makedirs
                 student.save()
                 print(serializer)
                 if 'image' in request.FILES:
@@ -146,11 +150,17 @@ class StudentFromClassId(generics.ListCreateAPIView):
                         image = image.convert('RGB')
                     img_io = BytesIO()
                     image.save(img_io, format='JPEG')
-                    print(class_instance.class_name)
-                    file_path = f'Data/classes/{class_instance.class_name}/{student.student_id}_{student.name}.jpg'
+                    # print(class_instance.class_name)
+                    print("break1")
+                    file_path = f'Data/classes/{class_instance.class_name}/students/{student.student_id}_{student.name}'
+                    directory = os.path.dirname(
+                        file_path + f'/{student.student_id}_{student.name}')
+                    if not os.path.exists(directory):
+                        os.makedirs(directory, exist_ok=True)
+                    image.save(
+                        file_path + f'/{student.student_id}_{student.name}.jpg', format='JPEG')
 
-                    image.save(file_path, format='JPEG')
-
+                    print("break")
                     student.image = file_path
                     student.save()
                     print("first path" + str(student.image))
@@ -161,7 +171,8 @@ class StudentFromClassId(generics.ListCreateAPIView):
                     print("file path:" + file_path)
 
                     # Send image to external API
-                    data = ProcessImageData(image_path)
+                    data = ProcessImageData(
+                        image_path + f'/{student.student_id}_{student.name}.jpg')
                     with open(file_path, 'w') as file:
                         for vector in data['embeddings']:
                             vector_str = ' '.join(map(str, vector))
@@ -184,6 +195,7 @@ class StudentFromClassId(generics.ListCreateAPIView):
             student_id = self.kwargs.get('pk')
             student = Student.objects.get(pk=student_id)
             student.delete()
+
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Student.DoesNotExist:
             raise NotFound(detail="Student not found",
@@ -307,49 +319,49 @@ class GetAttendentStudentsAtOneFrame(generics.ListCreateAPIView):
 class CameraHandle(generics.ListCreateAPIView):
     serializer_class = CameraInfor
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.cap = cv2.VideoCapture(0)  # 0 is the default camera
-        self.running = True
-        self.snapshot_thread = threading.Thread(target=self.take_snapshots)
-        self.snapshot_thread.start()
+# def __init__(self, *args, **kwargs):
+#     super().__init__(*args, **kwargs)
+#     # 0 is the default camera
+#     self.cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
+#     self.running = True
+#     self.snapshot_thread = threading.Thread(target=self.take_snapshots)
+#     self.snapshot_thread.start()
 
-    def take_snapshots(self):
-        next_snapshot_time = datetime.now() + timedelta(seconds=10)
-        while self.running:
-            ret, frame = self.cap.read()
-            if ret:
-                cv2.imshow('Frame', frame)
-                if datetime.now() >= next_snapshot_time:
-                    timestamp = int(time.time())
-                    filename = f'snapshot_{timestamp}.jpg'
-                    cv2.imwrite(filename, frame)
-                    print(f"Snapshot saved as {filename}")
-                    next_snapshot_time = datetime.now() + timedelta(seconds=10)
-            if cv2.waitKey(1) & 0xFF == ord('q'):  # Press 'q' to quit
-                self.running = False
-                break
-        self.cap.release()
-        cv2.destroyAllWindows()
+# def take_snapshots(self):
+#     next_snapshot_time = datetime.now() + timedelta(seconds=30)
+#     while self.running:
+#         ret, frame = self.cap.read()
+#         if ret:
+#             cv2.imshow('Frame', frame)
+#             if datetime.now() >= next_snapshot_time:
+#                 timestamp = int(time.time())
+#                 filename = f'snapshot_{timestamp}.jpg'
+#                 cv2.imwrite(filename, frame)
+#                 print(f"Snapshot saved as {filename}")
+#                 next_snapshot_time = datetime.now() + timedelta(seconds=30)
+#         if cv2.waitKey(1) & 0xFF == ord('q'):  # Press 'q' to quit
+#             self.running = False
+#             break
+#     self.cap.release()
+#     cv2.destroyAllWindows()
 
-    def post(self, request, *args, **kwargs):
-        return JsonResponse({'status': 'Camera is running and taking snapshots every 10 minutes'})
+# def post(self, request, *args, **kwargs):
+#     return JsonResponse({'status': 'Camera is running and taking snapshots every 10 minutes'})
 
-    def destroy(self, request, *args, **kwargs):
-        self.running = False
-        self.snapshot_thread.join()
-        self.cap.release()
-        cv2.destroyAllWindows()
-        return JsonResponse({'status': 'Camera stopped'})
+# def destroy(self, request, *args, **kwargs):
+#     self.running = False
+#     self.snapshot_thread.join()
+#     self.cap.release()
+#     cv2.destroyAllWindows()
+#     return JsonResponse({'status': 'Camera stopped'})
 
-    def __del__(self):
-        self.running = False
-        self.snapshot_thread.join()
-        self.cap.release()
-        cv2.destroyAllWindows()
+# def __del__(self):
+#     self.running = False
+#     self.snapshot_thread.join()
+#     self.cap.release()
+#     cv2.destroyAllWindows()
 
 # __________________ HA DJANGO ___________________________
-
 
 # add Class
 
