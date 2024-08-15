@@ -61,7 +61,7 @@ function Class() {
   const [name, setNewStudent] = useState("");
   const [imageStudent, setImageStudent] = useState(null);
 
-  // ======================================= get data =======================================
+  // ================================================= GET DATA ================================================
   useEffect(() => {
     getSlot();
     getClass();
@@ -85,6 +85,8 @@ function Class() {
     const studentsData = await GetDataFromRoute(`students/${idClass}/`);
     setStudents(studentsData);
   };
+
+
   const dataSource =
     students?.map((student) => ({
       name: student.name,
@@ -93,11 +95,12 @@ function Class() {
       key: student.id, // Adjust based on your student object structure
     })) || [];
 
-  //======================================= Form =======================================
-  const [formSlot] = Form.useForm();
+  //================================================ FORM ================================================
+
 
   // Form add new Slot --------------------------------------------------------------------------------
   const [isModalSlotVisible, setIsModalSlotVisible] = useState(false);
+  const [formSlot] = Form.useForm();
 
   //open modal
   const showSlotModal = () => {
@@ -163,7 +166,7 @@ function Class() {
           placement: "topRight",
           duration: 3,
         });
-        getClass(); // Refresh the list of classes
+        getSlot(); // Refresh the list of classes
       }
     } catch (error) {
       notification.error({
@@ -202,12 +205,6 @@ function Class() {
         console.log("Validate Failed:", info);
       });
   };
-
-  // const handleFileChange = (info) => {
-  //   const data = info.file.originFileObj;
-  //   setImageStudent(data);
-  //   console.log(imageStudent);
-  // };
 
   const handleFileChange = (info) => {
     if (info.fileList.length > 0) {
@@ -257,8 +254,14 @@ function Class() {
   };
   const handleDelete = async (studentId) => {
     try {
-      await axios.delete(`/students/${classId}/${studentId}/`);
-      message.success("Student deleted successfully");
+      await api.delete(`/students/${idClass}/${studentId}/`);
+      notification.success({
+        message: "Success",
+        description: `Student deleted successfully`,
+        placement: "topRight",
+        duration: 3,
+      });
+      getStudent();
       // Refresh the data source after deletion
       // You might need to fetch the updated list of students here
     } catch (error) {
@@ -266,6 +269,9 @@ function Class() {
       message.error("Failed to delete student");
     }
   };
+
+
+  //================================================ HTML ================================================
 
   return (
     <Layout>
@@ -405,6 +411,8 @@ function Class() {
           </Tabs.TabPane>
         </Tabs>
       </div>
+
+      {/* ================================================ Modal ================================================ */}
       <Modal
         title="Add new student"
         open={isModalStudentVisible}

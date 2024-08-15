@@ -1,9 +1,12 @@
 //import from libarary
 import React, { useState, useEffect } from "react";
-import { Layout, Card, Table, Tabs, Image } from "antd";
+import { Layout, Card, Table, Tabs, Image, Row, Col, Typography, Button, Tooltip } from "antd";
+
+const { Text } = Typography;
 const { TabPane } = Tabs;
 import {
   PlusOutlined,
+  ClockCircleTwoTone,
   CheckCircleOutlined,
   CheckCircleTwoTone,
   ExclamationCircleOutlined,
@@ -16,7 +19,6 @@ import dayjs from "dayjs";
 import Logo from "../compoment/Logo";
 import MenuList from "../compoment/MenuList";
 import GetDataFromRoute from "../compoment/GetDataFromBackend";
-import ProgressBar from "../compoment/ProgressBar";
 
 //CSS
 import "../styles/Attendent.css";
@@ -30,9 +32,9 @@ function Attendent() {
   const [timeFrames, setTimeFrame] = useState([]);
   const [studentsInOneFrame, setStudentsInOneFrame] = useState([]);
 
-  const [duration, setDuration] = useState(0);
+  const [duration, setDuration] = useState([]);
 
-  const [isRunning, setIsRunning] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
 
   // ======================================= get data =======================================
   useEffect(() => {
@@ -50,10 +52,15 @@ function Attendent() {
   const getSlot = async () => {
     const slotData = await GetDataFromRoute(`slot${params.idSlot}/`);
     setSlotInfomation(slotData[0]);
-    setDuration(
-      dayjs(slotInfomation.time_end, "HH:mm:ss").diff(
-        dayjs(slotInfomation.time_start, "HH:mm:ss")
+    const durationData = dayjs(slotData[0].time_end, "HH:mm:ss").diff(
+        dayjs(slotData[0].time_start, "HH:mm:ss")
       )
+
+    const hours = Math.floor(durationData / 3600000);
+    const minutes = Math.floor((durationData % 3600000) / 60000);
+
+    setDuration(
+      [`${String(hours).padStart(2, '0')}h${String(minutes).padStart(2, '0')}p`, durationData]
     );
   };
 
@@ -129,6 +136,10 @@ function Attendent() {
     }
   };
 
+  const handleClockClick = ()=>{
+    setIsRunning(!isRunning);
+  }
+
   return (
     <Layout>
       <Sider className="sidebar">
@@ -140,12 +151,56 @@ function Attendent() {
           title="Slot Information"
           className="class-container"
           bordered={false}
+          style={{minWidth: "500px"}}
+          extra={
+            <Tooltip
+              title={!isRunning ? "Start slot" : "End slot"}>
+              <Button
+                type="primary"
+                icon={<ClockCircleTwoTone twoToneColor={!isRunning ? "#1677ff": "#0ADF08" } />}
+                shape="circle"
+                onClick={handleClockClick}
+                style={!isRunning ? { backgroundColor: "#1677ff" } : { backgroundColor: "#0ADF08" }}
+              >
+              </Button>
+            </Tooltip>
+          }
         >
-          <p className="slot-name">Subject: {slotInfomation.subject}</p>
-          <p className="slot-class">Class: {className} </p>
-          <p className="slot-date">
-            Date: {slotInfomation.time_start} - {slotInfomation.time_end}
-          </p>
+          <Row>
+            <Col span={8}>
+              <Text strong>Subject:</Text>
+            </Col>
+            <Col span={16}>
+              <Text>{slotInfomation.subject}</Text>
+            </Col>
+          </Row>
+
+          <Row style={{ marginTop: '10px' }}>
+            <Col span={8}>
+              <Text strong>Class:</Text>
+            </Col>
+            <Col span={16}>
+              <Text>{className}</Text>
+            </Col>
+          </Row>
+
+          <Row style={{ marginTop: '10px' }}>
+            <Col span={8}>
+              <Text strong>Date:</Text>
+            </Col>
+            <Col span={16}>
+              <Text>{dayjs(slotInfomation.time_start, "HH:mm:ss").format('HH:mm A')} - {dayjs(slotInfomation.time_end, "HH:mm:ss").format('HH:mm A')}</Text>
+            </Col>
+          </Row>
+
+          <Row style={{ marginTop: '10px' }}>
+            <Col span={8}>
+              <Text strong>Duration:</Text>
+            </Col>
+            <Col span={16}>
+              <Text>{duration[0]}</Text>
+            </Col>
+          </Row>
         </Card>
         <Tabs
           defaultActiveKey="1"

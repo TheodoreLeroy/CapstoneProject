@@ -17,10 +17,10 @@ const MenuList = (currnentKey) => {
     }, [])
 
     const getClass = async () => {
-        const classData = await GetDataFromRoute("addClass/");
+        const classData = await GetDataFromRoute("classes/detail");
         setClassNames(classData);
     }
-
+    
     const onClick = (e) => {
         setCurrent(currnentKey.currnentKey)
         console.log('click e.key: ', e.key);
@@ -56,7 +56,7 @@ const MenuList = (currnentKey) => {
             children:
                 classNames?.map((className) => (
                     {
-                        key: `class/${classNames.indexOf(className) + 1}`,
+                        key: `classes/${className.id}`,
                         label: className.class_name + " - " + className.semester,
                     })),
 
