@@ -5,6 +5,8 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
+from django.dispatch import receiver
+from django.db.models.signals import pre_save
 import os
 
 # Create your models here.
@@ -58,8 +60,9 @@ class Student(models.Model):
         # clas_name = Class.objects.filter(id=instance.class_id_id)
         clas_name = instance.class_id.class_name
         # File will be uploaded to MEDIA_ROOT/Data/classes/<class_name>/<student_id>_<student_name>.jpg
-        return f'Data/classes/{clas_name}/{instance.class_id_id}_{instance.name}.jpg'
+        return f'Data/classes/{clas_name}/{instance.student_id}_{instance.name}.jpg'
 
+    student_id = models.AutoField(primary_key=True)
     # user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     class_id = models.ForeignKey(Class, on_delete=models.CASCADE)
     # slot_id = models.ForeignKey(Slot, on_delete=models.CASCADE)
@@ -67,9 +70,16 @@ class Student(models.Model):
     name = models.CharField(max_length=50)
     email = models.EmailField()
     password = models.CharField(max_length=16)
+    # image = models.ImageField()
     image = models.ImageField(upload_to=student_image_path)
 
 
+# @receiver(pre_save, sender=Student)
+# def set_student_image_path(sender, instance, **kwargs):
+#     if not hasattr(instance, '_already_saved'):
+#         instance._already_saved = True
+#         instance.save()
+#     instance.image.name = instance.student_image_path(instance.image.name)
 # Add auth to teacher
 
 # for each frame in 15 frame in camera

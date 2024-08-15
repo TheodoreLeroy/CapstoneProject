@@ -101,14 +101,38 @@ class StudentFromClassId(generics.ListCreateAPIView):
     # Convert image to embedding type
 
     def create(self, request, *args, **kwargs):
+        # def handleFilePath(file_path):
+        #     file_path_str = str(file_path)
+        #     path_components = file_path_str.split('/')
+
+        #     new_component = 'classes'
+        #     path_components.insert(-1, new_component)
+
+        #     name, ext = os.path.splitext(path_components[-1])
+        #     new_file_name = name + '.txt'
+        #     path_components[-1] = new_file_name
+
+        #     new_file_path = '/'.join(path_components)
+        #     return new_file_path
+
         try:
             serializer = self.get_serializer(data=request.data)
             if serializer.is_valid():
-                student = serializer.save()
+                validated_data = serializer.validated_data
+                class_instance = Class.objects.get(
+                    id=validated_data['class_id'].id)
+                student = Student(
+                    class_id=validated_data['class_id'],
+                    name=validated_data['name'],
+                    email=validated_data['email'],
+                    password=validated_data['password']
+                )
+
+                student.save()
+                print(serializer)
                 if 'image' in request.FILES:
                     image = Image.open(request.FILES['image'])
                     max_width, max_height = 300, 300  # Desired size
-                    imageEmbedd = image
                     # Resize the image while maintaining aspect ratio
                     image.thumbnail((max_width, max_height), Image.LANCZOS)
 
@@ -117,25 +141,38 @@ class StudentFromClassId(generics.ListCreateAPIView):
                         image = image.convert('RGB')
                     img_io = BytesIO()
                     image.save(img_io, format='JPEG')
+                    print(class_instance.class_name)
+                    file_path = f'Data/classes/{class_instance.class_name}/{student.student_id}_{student.name}.jpg'
+                    image.save(file_path, format='JPEG')
+
+                    student.image = file_path
                     student.save()
 
-                    # Send image to external API
-                    with open('myPic_0.png', 'rb') as image_file:
-                        files = {
-                            "image": ("test_image.jpg", image_file, "image/jpeg")}
-                        response = requests.post(
-                            'http://127.0.0.1:5001/process_image', files=files)
-                    if response.status_code == 200:
-                        print("API request success")
-                        data = response.json()
-                        print("Received boxes:", data['boxes'])
-                        print("Received embeddings shape:", [
-                            len(emb) for emb in data['embeddings']])
-                        # You can process the received data here as needed
-                    else:
-                        return Response({'error': 'Failed to process image'}, status=response.status_code)
+                    # image_path = student.image.path
+                    # print("image path:" + image_path)
+                    # file_path = handleFilePath(image_path)
+                    # print("file path:" + file_path)
 
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                    # Send image to external API
+                    # with open(image_path, 'rb') as image_file:
+                    #     files = {
+                    #         "image": ("test_image.jpg", image_file, "image/jpeg")}
+                    #     response = requests.post(
+                    #         'http://127.0.0.1:5001/process_image', files=files)
+                    # if response.status_code == 200:
+                    #     print("API request success")
+                    #     data = response.json()
+                    #     # print("Received boxes:", data['boxes'])
+                    #     # print("Received embeddings shape:", [
+                    #     #     len(emb) for emb in data['embeddings']])
+                    #     # You can process the received data here as needed
+                    # else:
+                    #     return Response({'error': 'Failed to process image'}, status=response.status_code)
+
+                respone_data = serializer.data
+                respone_data['ID'] = student.student_id
+                print(respone_data)
+                return Response(respone_data, status=status.HTTP_201_CREATED)
             else:
                 print(serializer.errors)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
