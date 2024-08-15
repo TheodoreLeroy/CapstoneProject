@@ -99,7 +99,7 @@ def handleFilePath(file_path):
     name, ext = os.path.splitext(path_components[-1])
 
     new_file_name = name + '.txt'
-    path_components.append(new_file_name)
+    path_components[-1] = new_file_name
 
     new_file_path = '/'.join(path_components)
     return new_file_path
@@ -161,7 +161,8 @@ class StudentFromClassId(generics.ListCreateAPIView):
                         file_path + f'/{student.student_id}_{student.name}.jpg', format='JPEG')
 
                     print("break")
-                    student.image = file_path
+                    student.image = file_path + \
+                        f'/{student.student_id}_{student.name}.jpg'
                     student.save()
                     print("first path" + str(student.image))
 
@@ -172,7 +173,7 @@ class StudentFromClassId(generics.ListCreateAPIView):
 
                     # Send image to external API
                     data = ProcessImageData(
-                        image_path + f'/{student.student_id}_{student.name}.jpg')
+                        image_path)
                     with open(file_path, 'w') as file:
                         for vector in data['embeddings']:
                             vector_str = ' '.join(map(str, vector))
@@ -252,8 +253,6 @@ class SlotInformation(generics.ListCreateAPIView):
 
 
 # Get slot-information for 1 class with class_id - url: "class<int:classId>/slot/"
-
-
 class SlotInformationFromIdClass(generics.ListCreateAPIView):
     serializer_class = SlotInfomationSerializers
 
