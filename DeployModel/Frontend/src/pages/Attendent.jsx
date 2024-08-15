@@ -1,6 +1,6 @@
 //import from libarary
 import React, { useState, useEffect } from "react";
-import { Layout, Card, Table, Tabs, Image, Row, Col, Typography, Button, Tooltip } from "antd";
+import { Layout, Card, Table, Tabs, Image, Row, Col, Typography, Button, Tooltip, Progress } from "antd";
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -32,9 +32,10 @@ function Attendent() {
   const [timeFrames, setTimeFrame] = useState([]);
   const [studentsInOneFrame, setStudentsInOneFrame] = useState([]);
 
-  const [duration, setDuration] = useState([]);
+  const [duration, setDuration] = useState(["", 0]);
 
   const [isRunning, setIsRunning] = useState(false);
+  const [time, setTime] = useState(0);
 
   // ======================================= get data =======================================
   useEffect(() => {
@@ -44,6 +45,49 @@ function Attendent() {
     getTimeFrame();
   }, []);
 
+
+
+  // ===================================================== TIMER =====================================================
+  useEffect(() => {
+    let interval;
+
+    if (isRunning && time > 0) {
+      interval = setInterval(() => {
+        setTime(prevTime => {
+          if (prevTime <= 1000) {
+            clearInterval(interval);
+            setIsRunning(false);
+            return 0;
+          }
+          return prevTime - 1000;
+        });
+      }, 1000); // Update time every second
+    }
+
+    return () => clearInterval(interval); // Cleanup interval on component unmount
+  }, [isRunning, time]);
+
+  const startPause = () => {
+    if (time > 0) {
+      setIsRunning(!isRunning);
+    }
+  };
+
+  const setTimer = () => {
+    const milliseconds = duration[1]; // Convert minutes to milliseconds
+    setTime(milliseconds);
+  };
+
+  const formatTime = (time) => {
+    const seconds = (`0${Math.floor((time / 1000) % 60)}`).slice(-2);
+    const minutes = (`0${Math.floor((time / 60000) % 60)}`).slice(-2);
+    const hours = (`0${Math.floor(time / 3600000)}`).slice(-2);
+
+    return `${hours}:${minutes}:${seconds}`;
+  };
+
+
+  // ===================================================== GET DATA =====================================================
   const getClass = async () => {
     const classData = await GetDataFromRoute(`classes/${params.idClass}/`);
     setClassName(classData[0].class_name);
@@ -53,8 +97,8 @@ function Attendent() {
     const slotData = await GetDataFromRoute(`slot${params.idSlot}/`);
     setSlotInfomation(slotData[0]);
     const durationData = dayjs(slotData[0].time_end, "HH:mm:ss").diff(
-        dayjs(slotData[0].time_start, "HH:mm:ss")
-      )
+      dayjs(slotData[0].time_start, "HH:mm:ss")
+    )
 
     const hours = Math.floor(durationData / 3600000);
     const minutes = Math.floor((durationData % 3600000) / 60000);
@@ -92,6 +136,10 @@ function Attendent() {
       //   picture: 1,
       picture: <Image width={128} src={student.image} />, // Adjust based on your student object structure
     })) || [];
+
+
+
+
 
   const tableStudent = (dataSource) => {
     return (
@@ -136,9 +184,12 @@ function Attendent() {
     }
   };
 
-  const handleClockClick = ()=>{
+  const handleClockClick = () => {
     setIsRunning(!isRunning);
+    setTimer();
   }
+  const progressPercent = (duration[1] > 0) ? (100 -(time / duration[1]) * 100) : 0;
+  
 
   return (
     <Layout>
@@ -151,13 +202,13 @@ function Attendent() {
           title="Slot Information"
           className="class-container"
           bordered={false}
-          style={{minWidth: "500px"}}
+          style={{ minWidth: "500px", paddingBottom: "0px" }}
           extra={
             <Tooltip
               title={!isRunning ? "Start slot" : "End slot"}>
               <Button
                 type="primary"
-                icon={<ClockCircleTwoTone twoToneColor={!isRunning ? "#1677ff": "#0ADF08" } />}
+                icon={<ClockCircleTwoTone twoToneColor={!isRunning ? "#1677ff" : "#0ADF08"} />}
                 shape="circle"
                 onClick={handleClockClick}
                 style={!isRunning ? { backgroundColor: "#1677ff" } : { backgroundColor: "#0ADF08" }}
@@ -201,6 +252,19 @@ function Attendent() {
               <Text>{duration[0]}</Text>
             </Col>
           </Row>
+          <Row style={{ marginTop: '10px' }}>
+            <Col span={8} style={{margin: "auto"}}>
+              <Text >Time:  {formatTime(time)}</Text>
+           </Col>
+            <Col span={16}>
+              <Progress
+                percent={progressPercent}
+                strokeColor="rgb(24, 144, 255)"
+                style={{ marginTop: '10px', marginBottom: '10px' }}
+                showInfo={false}
+              />
+           </Col>
+          </Row>         
         </Card>
         <Tabs
           defaultActiveKey="1"
