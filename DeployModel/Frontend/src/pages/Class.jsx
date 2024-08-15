@@ -86,17 +86,15 @@ function Class() {
     setStudents(studentsData);
   };
 
-
   const dataSource =
     students?.map((student) => ({
       name: student.name,
-      ID: student.id,
+      ID: student.student_id,
       picture: <Image width={128} src={student.image} />,
       key: student.id, // Adjust based on your student object structure
     })) || [];
 
   //================================================ FORM ================================================
-
 
   // Form add new Slot --------------------------------------------------------------------------------
   const [isModalSlotVisible, setIsModalSlotVisible] = useState(false);
@@ -269,7 +267,6 @@ function Class() {
       message.error("Failed to delete student");
     }
   };
-
 
   //================================================ HTML ================================================
 
