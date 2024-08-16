@@ -205,10 +205,40 @@ class StudentFromClassId(generics.ListCreateAPIView):
             print(f"Error: {e}")
             return Response({"detail": "Internal Server Error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+# Handle write embedding file
+
+
+def handlePath(file_path, old_component, new_component):
+    file_path_str = str(file_path)
+    path_components = file_path_str.split('/')
+
+    # Replace the old component with the new component
+    if old_component in path_components:
+        index = path_components.index(old_component)
+        path_components[index] = new_component
+
+    name, ext = os.path.splitext(path_components[-1])
+
+    for_exist = '/'.join(path_components[:6])
+    if not os.path.exists(for_exist):
+        os.makedirs(for_exist)
+
+    new_file_name = name + '.txt'
+    path_components[-1] = new_file_name
+
+    new_file_path = '/'.join(path_components)
+    return new_file_path
+
+
+def HandleWriteText(data, file_path):
+    with open(file_path, 'w') as file:
+        for vector in data['embeddings']:
+            vector_str = ' '.join(map(str, vector))
+            file.write(f'{vector_str}\n')
+
+
 # API - source model2 - Phuc
 # url: http://127.0.0.1:5001/process_image
-
-
 def ProcessImageData(path):
     with open(path, 'rb') as image_file:
         files = {
@@ -234,7 +264,7 @@ class SlotInformation(generics.ListCreateAPIView):
         return Slot.objects.all()
 
     def perform_create(self, serializer):
-        print("perform_create called")
+        # print("perform_create called")
         if serializer.is_valid():
             validate_data = serializer.validated_data
             class_instance = Class.objects.get(id=validate_data['class_id'].id)
@@ -312,10 +342,39 @@ class GetTimeFrame(generics.ListCreateAPIView):
         return TimeFrame.objects.filter(slot_id=id)
 
     def perform_create(self, serializer):
-        if serializer.is_valid():
-            serializer.save()
-        else:
-            print(serializer.errors)
+        try:
+            if serializer.is_valid():
+                validate_data = serializer.validated_data
+                timeframe = TimeFrame(
+                    slot_id=validate_data['slot_id']
+                )
+                # slot_instance = Slot.objects.get(
+                #     id=validate_data['slot_id'].id)
+                # # slot_id = validate_data['slot_id']
+                # class_instance = Class.objects.get(
+                #     id=slot_instance.class_id.id
+                # )
+                # Pre-save timeframe to get ID
+                timeframe.save()
+                timeframe.embedding = validate_data['embedding']
+                timeframe.save()
+
+                image_path = timeframe.embedding
+                print(image_path)
+
+                data = ProcessImageData(str(image_path))
+                file_path = handlePath(image_path, 'images', 'embedding')
+                print(file_path)
+
+                HandleWriteText(data, file_path)
+
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                print(serializer.errors)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(f'Error: {e}')
+        return Response({"detail": "Internal Server Error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, *args, **kwargs):
         try:

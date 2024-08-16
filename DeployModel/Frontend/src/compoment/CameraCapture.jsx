@@ -61,7 +61,7 @@ export default function CameraCapture({ idSlot, isRunning }) {
 
     // Convert the canvas to a Blob (image file)
     canvasRef.current.toBlob(async (blob) => {
-      const file = new File([blob], "capture.png", { type: "image/png" });
+      const file = new File([blob], "capture.JPEG", { type: "image/JPEG" });
 
       // Prepare form data
       const formData = new FormData();
@@ -76,7 +76,7 @@ export default function CameraCapture({ idSlot, isRunning }) {
           placement: "topRight",
           duration: 3,
         });
-        // getStudent();
+        getStudent();
       }
     });
   };

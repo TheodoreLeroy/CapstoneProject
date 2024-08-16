@@ -6,8 +6,10 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django.dispatch import receiver
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 import os
+from datetime import datetime
+
 
 # Create your models here.
 # Create teacher and student group
@@ -70,7 +72,6 @@ class Student(models.Model):
     name = models.CharField(max_length=50)
     email = models.EmailField()
     password = models.CharField(max_length=16)
-    # image = models.ImageField()
     image = models.ImageField(upload_to=student_image_path)
 
 
@@ -79,7 +80,6 @@ class Student(models.Model):
 
 
 class TimeFrame(models.Model):
-    @staticmethod
     def query_class(instance):
         slot_instance = Slot.objects.get(id=instance.id)
         slot_name = slot_instance.subject
@@ -87,14 +87,20 @@ class TimeFrame(models.Model):
         clas_name = class_instance.class_name
         return clas_name, slot_name
 
-    @staticmethod
     def student_image_path(instance, filename):
+
         clas_name, slot_name = TimeFrame.query_class(instance.slot_id)
+        current_datetime = datetime.now().strftime('%Y%m%d%H%M')
+        if instance.id is None:
+
+            # Return a temporary path if the instance is not saved yet
+            return f'Data/classes/temp/{filename}'
         # File will be uploaded to MEDIA_ROOT/Data/classes/<class_name>/<student_id>_<student_name>.jpg
-        return f'Data/classes/{clas_name}/slot/{slot_name}/{instance.embedding}_{instance.slot_id}.jpg'
+        return f'Data/classes/{clas_name}/slot/{slot_name}/images/{instance.id}_{current_datetime}.jpg'
 
     embedding = models.ImageField(upload_to=student_image_path)
     slot_id = models.ForeignKey(Slot, on_delete=models.CASCADE)
+
 
 # contain all student that model can recognite in one frame. when it have detect face bt can't recognite std_id = null
 
