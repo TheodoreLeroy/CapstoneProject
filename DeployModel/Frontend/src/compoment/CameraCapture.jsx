@@ -8,7 +8,7 @@ import {
 
 import api from '../api';
 
-export default function CameraCapture({ idSlot }) {
+export default function CameraCapture({ idSlot, isRunning }) {
 
     const [devices, setDevices] = useState([]);
     const [selectedDeviceId, setSelectedDeviceId] = useState(null);
@@ -17,8 +17,6 @@ export default function CameraCapture({ idSlot }) {
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const streamRef = useRef(null); // To keep track of the stream
-
-    const [isRunning, setIsRunning] = useState(false);
 
     useEffect(() => {
         const getDevices = async () => {
@@ -29,6 +27,14 @@ export default function CameraCapture({ idSlot }) {
         };
         getDevices();
     }, []);
+
+    useEffect(() =>{
+        if (!isRunning) {
+            stopCamera();
+        } else {
+            startCamera();
+        }
+    }, [isRunning])
 
     const startCamera = async () => {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -76,7 +82,6 @@ export default function CameraCapture({ idSlot }) {
             } else {
                 startCamera();
             }
-            setIsRunning(!isRunning);
         }
 
         const options = devices.map((device, index) => ({

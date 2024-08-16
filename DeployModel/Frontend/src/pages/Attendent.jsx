@@ -200,22 +200,6 @@ function Attendent() {
   const handleClockClick = async () => {
     setIsRunning(!isRunning);
     setTimer();
-    try {
-      const response = await api.post("slot/camera/");
-      notification.success({
-        message: "Success",
-        description: response.data.status,
-        placement: "topRight",
-        duration: 3,
-      });
-    } catch (error) {
-      notification.error({
-        message: "Error",
-        description: error.message,
-        placement: "topRight",
-        duration: 3,
-      });
-    }
   };
 
   // const handleClockClick = useCallback(async () => {
@@ -331,7 +315,10 @@ function Attendent() {
             </Card>
           </Col>
           <Col>
-            <CameraCapture idSlot={slotInfomation.id}></CameraCapture>
+            <CameraCapture 
+              idSlot={slotInfomation.id}
+              isRunning={isRunning}
+            ></CameraCapture>
           </Col>
         </Row>
         <Tabs
