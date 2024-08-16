@@ -301,7 +301,9 @@ class GetTimeFrame(generics.ListCreateAPIView):
 
     def get_queryset(self):
         id = self.kwargs.get('slotId')
-        return TimeFrame.objects.filter(slot_id=id)
+        timeFrame = TimeFrame.objects.filter(slot_id=id)
+        print(timeFrame)
+        return timeFrame
 
 
 class GetAttendentStudentsAtOneFrame(generics.ListCreateAPIView):
@@ -317,6 +319,7 @@ class GetAttendentStudentsAtOneFrame(generics.ListCreateAPIView):
 
 class CameraHandle(generics.ListCreateAPIView):
     serializer_class = CameraInfor
+
 
 # def __init__(self, *args, **kwargs):
 #     super().__init__(*args, **kwargs)

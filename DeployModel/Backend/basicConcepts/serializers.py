@@ -46,3 +46,8 @@ class AttendentStudentsAtOneFrameSerializer(serializers.ModelSerializer):
     class Meta:
         model = AttendentStudentsAtOneFrame
         fields = ['embedding', 'student_id', 'time_frame']
+
+class CamInfo(serializers.ModelSerializer):
+    class Meta:
+        model = Camera
+        fields = '__all__'

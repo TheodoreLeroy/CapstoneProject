@@ -79,7 +79,7 @@ class Student(models.Model):
 
 
 class TimeFrame(models.Model):
-    embedding = models.BinaryField(default=b'')
+    embedding = models.ImageField()
     slot_id = models.ForeignKey(Slot, on_delete=models.CASCADE)
 
 # contain all student that model can recognite in one frame. when it have detect face bt can't recognite std_id = null

@@ -31,6 +31,7 @@ import dayjs from "dayjs";
 import Logo from "../compoment/Logo";
 import MenuList from "../compoment/MenuList";
 import GetDataFromRoute from "../compoment/GetDataFromBackend";
+import CameraCapture from "../compoment/CameraCapture";
 
 //CSS
 import "../styles/Attendent.css";
@@ -84,7 +85,6 @@ function Attendent() {
     }
   };
 
-  // nope
   const setTimer = () => {
     const milliseconds = duration[1]; // Convert minutes to milliseconds
     setTime(milliseconds);
@@ -132,7 +132,6 @@ function Attendent() {
       `slot${params.idSlot}/timeFrame/`
     );
     setTimeFrame(timeFrameData);
-    console.log(timeFrameData);
   };
 
   const dataSource =
@@ -151,33 +150,39 @@ function Attendent() {
 
   const tableStudent = (dataSource) => {
     return (
-      <Table
-        columns={[
-          {
-            title: "Name",
-            dataIndex: "name",
-            key: "name",
-            render: (image) => <div style={{ fontSize: "15px" }}>{image}</div>,
-          },
-          {
-            title: "ID",
-            dataIndex: "ID",
-            key: "ID",
-          },
-          {
-            title: "Picture",
-            dataIndex: "picture",
-            key: "picture",
-            render: (image) => <div style={{ textAlign: "left" }}>{image}</div>,
-          },
-          {
-            title: "Attend status",
-          },
-        ]}
-        dataSource={dataSource}
-      ></Table>
+      <>
+        <Table
+          columns={[
+            {
+              title: "Name",
+              dataIndex: "name",
+              key: "name",
+              render: (image) => <div style={{ fontSize: "15px" }}>{image}</div>,
+            },
+            {
+              title: "ID",
+              dataIndex: "ID",
+              key: "ID",
+            },
+            {
+              title: "Picture",
+              dataIndex: "picture",
+              key: "picture",
+              render: (image) => <div style={{ textAlign: "left" }}>{image}</div>,
+            },
+            {
+              title: "Attend status",
+            },
+          ]}
+          dataSource={dataSource}
+        ></Table>
+
+      </>
     );
   };
+
+  console.log(timeFrames);
+
   const handleTabClick = async (key) => {
     console.log(key);
 
@@ -196,7 +201,7 @@ function Attendent() {
     setIsRunning(!isRunning);
     setTimer();
     try {
-      const response = await api.post("slot/camera/", {});
+      const response = await api.post("slot/camera/");
       notification.success({
         message: "Success",
         description: response.data.status,
@@ -213,6 +218,27 @@ function Attendent() {
     }
   };
 
+  // const handleClockClick = useCallback(async () => {
+  //   setIsRunning(!isRunning);
+  //   setTimer();
+  //   try {
+  //     const response = await api.post("/slot/camera");
+  //     notification.success({
+  //       message: "Success",
+  //       description: response.data.status,
+  //       placement: "topRight",
+  //       duration: 3,
+  //     });
+  //   } catch (error) {
+  //     notification.error({
+  //       message: "Error",
+  //       description: error.message,
+  //       placement: "topRight",
+  //       duration: 3,
+  //     });
+  //   }
+  // }, [isRunning]);
+
   const progressPercent =
     duration[1] > 0 ? 100 - (time / duration[1]) * 100 : 0;
 
@@ -223,83 +249,91 @@ function Attendent() {
         <MenuList currnentKey={"activity"} />
       </Sider>
       <div className="attendent-information">
-        <Card
-          title="Slot Information"
-          className="class-container"
-          bordered={false}
-          style={{ minWidth: "500px", paddingBottom: "0px" }}
-          extra={
-            <Tooltip title={!isRunning ? "Start slot" : "End slot"}>
-              <Button
-                type="primary"
-                icon={
-                  <ClockCircleTwoTone
-                    twoToneColor={!isRunning ? "#1677ff" : "#0ADF08"}
+        <Row style={{ width: "100%", justifyContent: "center" }}>
+          <Col>
+            <Card
+              title="Slot Information"
+              className="class-container"
+              bordered={false}
+              style={{ minWidth: "500px", paddingBottom: "0px" }}
+              extra={
+                <Tooltip title={!isRunning ? "Start slot" : "End slot"}>
+                  <Button
+                    type="primary"
+                    icon={
+                      <ClockCircleTwoTone
+                        twoToneColor={!isRunning ? "#1677ff" : "#0ADF08"}
+                      />
+                    }
+                    shape="circle"
+                    onClick={handleClockClick}
+                    style={
+                      !isRunning
+                        ? { backgroundColor: "#1677ff" }
+                        : { backgroundColor: "#0ADF08" }
+                    }
+                  ></Button>
+                </Tooltip>
+              }
+            >
+
+              <Row>
+                <Col span={8}>
+                  <Text strong>Subject:</Text>
+                </Col>
+                <Col span={16}>
+                  <Text>{slotInfomation.subject}</Text>
+                </Col>
+              </Row>
+
+              <Row style={{ marginTop: "10px" }}>
+                <Col span={8}>
+                  <Text strong>Class:</Text>
+                </Col>
+                <Col span={16}>
+                  <Text>{className}</Text>
+                </Col>
+              </Row>
+
+              <Row style={{ marginTop: "10px" }}>
+                <Col span={8}>
+                  <Text strong>Date:</Text>
+                </Col>
+                <Col span={16}>
+                  <Text>
+                    {dayjs(slotInfomation.time_start, "HH:mm:ss").format("HH:mm A")}{" "}
+                    - {dayjs(slotInfomation.time_end, "HH:mm:ss").format("HH:mm A")}
+                  </Text>
+                </Col>
+              </Row>
+
+              <Row style={{ marginTop: "10px" }}>
+                <Col span={8}>
+                  <Text strong>Duration:</Text>
+                </Col>
+                <Col span={16}>
+                  <Text>{duration[0]}</Text>
+                </Col>
+              </Row>
+              <Row style={{ marginTop: "10px" }}>
+                <Col span={8} style={{ margin: "auto" }}>
+                  <Text>Time: {formatTime(time)}</Text>
+                </Col>
+                <Col span={16}>
+                  <Progress
+                    percent={progressPercent}
+                    strokeColor="rgb(24, 144, 255)"
+                    style={{ marginTop: "10px", marginBottom: "10px" }}
+                    showInfo={false}
                   />
-                }
-                shape="circle"
-                onClick={handleClockClick}
-                style={
-                  !isRunning
-                    ? { backgroundColor: "#1677ff" }
-                    : { backgroundColor: "#0ADF08" }
-                }
-              ></Button>
-            </Tooltip>
-          }
-        >
-          <Row>
-            <Col span={8}>
-              <Text strong>Subject:</Text>
-            </Col>
-            <Col span={16}>
-              <Text>{slotInfomation.subject}</Text>
-            </Col>
-          </Row>
-
-          <Row style={{ marginTop: "10px" }}>
-            <Col span={8}>
-              <Text strong>Class:</Text>
-            </Col>
-            <Col span={16}>
-              <Text>{className}</Text>
-            </Col>
-          </Row>
-
-          <Row style={{ marginTop: "10px" }}>
-            <Col span={8}>
-              <Text strong>Date:</Text>
-            </Col>
-            <Col span={16}>
-              <Text>
-                {dayjs(slotInfomation.time_start, "HH:mm:ss").format("HH:mm A")}{" "}
-                - {dayjs(slotInfomation.time_end, "HH:mm:ss").format("HH:mm A")}
-              </Text>
-            </Col>
-          </Row>
-
-          <Row style={{ marginTop: "10px" }}>
-            <Col span={8}>
-              <Text strong>Duration:</Text>
-            </Col>
-            <Col span={16}>
-              <Text>{duration[0]}</Text>
-            </Col>
-          </Row>
-          <Row style={{ marginTop: "10px" }}>
-            <Col span={8} style={{ margin: "auto" }}>
-              <Text>Time: {formatTime(time)}</Text>
-            </Col>
-            <Col span={16}>
-              <Progress
-                percent={progressPercent}
-                strokeColor="rgb(24, 144, 255)"
-                style={{ marginTop: "10px", marginBottom: "10px" }}
-                showInfo={false}
-              />
-            </Col>
-          </Row>
-        </Card>
+                </Col>
+              </Row>
+            </Card>
+          </Col>
+          <Col>
+            <CameraCapture idSlot={slotInfomation.id}></CameraCapture>
+          </Col>
+        </Row>
         <Tabs
           defaultActiveKey="1"
           className="Tabs-container"
@@ -312,9 +346,13 @@ function Attendent() {
           {timeFrames?.map((eachTimeFrame, index) => (
             <Tabs.TabPane tab={index + 1} key={eachTimeFrame.id}>
               {tableStudent(dataSourceAtOneFrame)}
+              <Card title="Total review" style={{margin: "10px"}}>
+                <Image src={timeFrames[0].embedding} />
+              </Card>
             </Tabs.TabPane>
           ))}
         </Tabs>
+
       </div>
     </Layout>
   );
