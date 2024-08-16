@@ -67,24 +67,16 @@ export default function CameraCapture({ idSlot, isRunning }) {
       const formData = new FormData();
       formData.append("embedding", file);
       formData.append("slot_id", idSlot);
-      //   formData.append("class_id", idClass);
 
-      try {
-        const res = await api.post(`slot${idSlot}/timeFrame/`, formData);
-        if (res.status === 201) {
-          notification.success({
-            message: "Success",
-            description: `Timeframe added successfully!`,
-            placement: "topRight",
-            duration: 3,
-          });
-          // getStudent();
-        }
-      } catch (error) {
-        console.error(
-          "Error:",
-          error.response ? error.response.data : error.message
-        );
+      const res = await api.post(`slot${idSlot}/timeFrame/`, formData);
+      if (res.status === 201) {
+        notification.success({
+          message: "Success",
+          description: `Timeframe add successfully!`,
+          placement: "topRight",
+          duration: 3,
+        });
+        // getStudent();
       }
     });
   };

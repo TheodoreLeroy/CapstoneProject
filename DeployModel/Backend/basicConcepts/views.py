@@ -160,16 +160,16 @@ class StudentFromClassId(generics.ListCreateAPIView):
                     image.save(
                         file_path + f'/{student.student_id}_{student.name}.jpg', format='JPEG')
 
-                    print("break")
+                    # print("break")
                     student.image = file_path + \
                         f'/{student.student_id}_{student.name}.jpg'
                     student.save()
-                    print("first path" + str(student.image))
+                    # print("first path" + str(student.image))
 
                     image_path = str(student.image)
-                    print("image path:" + image_path)
+                    # print("image path:" + image_path)
                     file_path = handleFilePath(image_path)
-                    print("file path:" + file_path)
+                    # print("file path:" + file_path)
 
                     # Send image to external API
                     data = ProcessImageData(
@@ -182,7 +182,7 @@ class StudentFromClassId(generics.ListCreateAPIView):
                 # Add id field to data
                 respone_data = serializer.data
                 respone_data['ID'] = student.student_id
-                print(respone_data)
+                # print(respone_data)
                 return Response(respone_data, status=status.HTTP_201_CREATED)
             else:
                 print(serializer.errors)
@@ -237,11 +237,9 @@ class SlotInformation(generics.ListCreateAPIView):
         print("perform_create called")
         if serializer.is_valid():
             validate_data = serializer.validated_data
-            class_instance = Class.objects.get(
-                id=validate_data['class_id'].id
-            )
+            class_instance = Class.objects.get(id=validate_data['class_id'].id)
             slot_instance = serializer.save()
-            slot_name = slot_instance.subject  # Assuming the slot has a 'name' field
+            slot_name = slot_instance.subject  # Assuming the slot has a 'subject' field
             directory = os.path.join(
                 'Data', 'classes', class_instance.class_name, 'slot', slot_name)
             if not os.path.exists(directory):

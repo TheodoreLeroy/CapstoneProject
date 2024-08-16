@@ -79,13 +79,21 @@ class Student(models.Model):
 
 
 class TimeFrame(models.Model):
-    def timeframe_image_path(instance, filename):
-        clas_name = instance.class_id.class_name
-        slot_name = instance.slot_id.subject
+    @staticmethod
+    def query_class(instance):
+        slot_instance = Slot.objects.get(id=instance.id)
+        slot_name = slot_instance.subject
+        class_instance = Class.objects.get(id=slot_instance.class_id.id)
+        clas_name = class_instance.class_name
+        return clas_name, slot_name
+
+    @staticmethod
+    def student_image_path(instance, filename):
+        clas_name, slot_name = TimeFrame.query_class(instance.slot_id)
         # File will be uploaded to MEDIA_ROOT/Data/classes/<class_name>/<student_id>_<student_name>.jpg
-        return f'Data/classes/{clas_name}/slot/{slot_name}/{instance.id}_{instance.slot_id}.jpg'
-    class_id = models.ForeignKey(Class, on_delete=models.CASCADE)
-    embedding = models.ImageField(upload_to=timeframe_image_path)
+        return f'Data/classes/{clas_name}/slot/{slot_name}/{instance.embedding}_{instance.slot_id}.jpg'
+
+    embedding = models.ImageField(upload_to=student_image_path)
     slot_id = models.ForeignKey(Slot, on_delete=models.CASCADE)
 
 # contain all student that model can recognite in one frame. when it have detect face bt can't recognite std_id = null

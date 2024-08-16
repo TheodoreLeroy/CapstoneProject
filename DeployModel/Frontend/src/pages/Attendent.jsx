@@ -323,7 +323,6 @@ function Attendent() {
           </Col>
           <Col>
             <CameraCapture
-              // idClass={slotInfomation.id}
               idSlot={slotInfomation.id}
               isRunning={isRunning}
             ></CameraCapture>
@@ -342,7 +341,7 @@ function Attendent() {
             <Tabs.TabPane tab={index + 1} key={eachTimeFrame.id}>
               {tableStudent(dataSourceAtOneFrame)}
               <Card title="Total review" style={{ margin: "10px" }}>
-                <Image src={timeFrames[index].embedding} />
+                <Image src={timeFrames[0].embedding} />
               </Card>
             </Tabs.TabPane>
           ))}
