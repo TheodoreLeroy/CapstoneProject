@@ -157,7 +157,9 @@ function Attendent() {
               title: "Name",
               dataIndex: "name",
               key: "name",
-              render: (image) => <div style={{ fontSize: "15px" }}>{image}</div>,
+              render: (image) => (
+                <div style={{ fontSize: "15px" }}>{image}</div>
+              ),
             },
             {
               title: "ID",
@@ -168,7 +170,9 @@ function Attendent() {
               title: "Picture",
               dataIndex: "picture",
               key: "picture",
-              render: (image) => <div style={{ textAlign: "left" }}>{image}</div>,
+              render: (image) => (
+                <div style={{ textAlign: "left" }}>{image}</div>
+              ),
             },
             {
               title: "Attend status",
@@ -176,7 +180,6 @@ function Attendent() {
           ]}
           dataSource={dataSource}
         ></Table>
-
       </>
     );
   };
@@ -260,7 +263,6 @@ function Attendent() {
                 </Tooltip>
               }
             >
-
               <Row>
                 <Col span={8}>
                   <Text strong>Subject:</Text>
@@ -285,8 +287,13 @@ function Attendent() {
                 </Col>
                 <Col span={16}>
                   <Text>
-                    {dayjs(slotInfomation.time_start, "HH:mm:ss").format("HH:mm A")}{" "}
-                    - {dayjs(slotInfomation.time_end, "HH:mm:ss").format("HH:mm A")}
+                    {dayjs(slotInfomation.time_start, "HH:mm:ss").format(
+                      "HH:mm A"
+                    )}{" "}
+                    -{" "}
+                    {dayjs(slotInfomation.time_end, "HH:mm:ss").format(
+                      "HH:mm A"
+                    )}
                   </Text>
                 </Col>
               </Row>
@@ -315,7 +322,8 @@ function Attendent() {
             </Card>
           </Col>
           <Col>
-            <CameraCapture 
+            <CameraCapture
+              // idClass={slotInfomation.id}
               idSlot={slotInfomation.id}
               isRunning={isRunning}
             ></CameraCapture>
@@ -333,13 +341,12 @@ function Attendent() {
           {timeFrames?.map((eachTimeFrame, index) => (
             <Tabs.TabPane tab={index + 1} key={eachTimeFrame.id}>
               {tableStudent(dataSourceAtOneFrame)}
-              <Card title="Total review" style={{margin: "10px"}}>
-                <Image src={timeFrames[0].embedding} />
+              <Card title="Total review" style={{ margin: "10px" }}>
+                <Image src={timeFrames[index].embedding} />
               </Card>
             </Tabs.TabPane>
           ))}
         </Tabs>
-
       </div>
     </Layout>
   );

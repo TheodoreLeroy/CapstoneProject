@@ -49,7 +49,7 @@ def test():
     cv2.destroyAllWindows()
 
 
-image_path = "me6.jpg"
+image_path = "hien1.jpg"
 
 
 def post():
@@ -74,7 +74,7 @@ def post():
         # print("Received embeddings shape:", [
         #       len(emb) for emb in data['embeddings']])
 
-        # file_name = "test_taylor.txt"
+        # file_name = "quynh.txt"
         # with open(file_name, 'w') as file:
         #     for vector in data['embeddings']:
         #         # print(vector)
@@ -86,11 +86,13 @@ def post():
         # Open the original image for drawing
         image = Image.open(image_path)
         draw = ImageDraw.Draw(image)
-
+        i = 0
         # Draw bounding boxes
         for box in data['boxes']:
+            # print(box)
             x1, x2, y1, y2 = box
             draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
+            i+1
 
         # Display the image with bounding boxes
         plt.figure(figsize=(12, 8))
@@ -109,12 +111,13 @@ data = post()
 boxs = data.get('boxes', [])
 print(data['boxes'])
 embedding = data.get('embeddings')
+# print(embedding)
 # for item in embedding:
 #     print(item)
 
 
 def identify(face_embedding):
-    file_name = 'DeployModel\Backend\Data\classes\AI168\students\\50_Me\\50_Me.txt'  # the weekend
+    file_name = 'hien.txt'  # the weekend
     with open(file_name, 'r') as file:
         target_embed = [list(map(float, line.split())) for line in file]
     # print(target_embed)
@@ -161,7 +164,7 @@ def drawing(boxi, iden):
         # Position text slightly below the rectangle
         text_position = (x1, y2 + 5)
         # Vi tri        Text    Mau``
-        draw.text(text_position, "vailon",
+        draw.text(text_position, "em bao boi",
                   align='center', fill="red", font=font)
         # Display the image with bounding boxes
         plt.figure(figsize=(12, 8))
@@ -264,63 +267,63 @@ def draw_embeddings_on_image(image_path, boxes, embeddings):
 #     def identify(snapshot_embedd, studentId):
 #         return
 
-class CameraHandle(generics.ListCreateAPIView):
-    # student = Student.objects.get(student_id=47)
-    # print(student)
+# class CameraHandle(generics.ListCreateAPIView):
+#     # student = Student.objects.get(student_id=47)
+#     # print(student)
 
-    serializer_class = CameraInfor
+#     serializer_class = CameraInfor
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # 0 is the default camera
-        self.cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
-        self.running = True
-        self.snapshot_thread = threading.Thread(target=self.take_snapshots)
-        self.snapshot_thread.start()
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         # 0 is the default camera
+#         self.cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
+#         self.running = True
+#         self.snapshot_thread = threading.Thread(target=self.take_snapshots)
+#         self.snapshot_thread.start()
 
-    def take_snapshots(self):
-        next_snapshot_time = datetime.now() + timedelta(seconds=30)
-        while self.running:
-            ret, frame = self.cap.read()
-            if ret:
-                cv2.imshow('Frame', frame)
-                if datetime.now() >= next_snapshot_time:
-                    timestamp = int(time.time())
-                    directory = 'Data/classes/AI168/slot'
-                    if not os.path.exists(directory):
-                        os.makedirs(directory)
-                    filename = os.path.join(
-                        directory, f'snapshot_{timestamp}.jpg')
-                    cv2.imwrite(filename, frame)
-                    print(f"Snapshot saved as {filename}")
-                    next_snapshot_time = datetime.now() + timedelta(seconds=30)
-                    self.send_image_to_api(filename)
-            if cv2.waitKey(1) & 0xFF == ord('q'):  # Press 'q' to quit
-                self.running = False
-                break
-        self.cap.release()
-        cv2.destroyAllWindows()
+#     def take_snapshots(self):
+#         next_snapshot_time = datetime.now() + timedelta(seconds=30)
+#         while self.running:
+#             ret, frame = self.cap.read()
+#             if ret:
+#                 cv2.imshow('Frame', frame)
+#                 if datetime.now() >= next_snapshot_time:
+#                     timestamp = int(time.time())
+#                     directory = 'Data/classes/AI168/slot'
+#                     if not os.path.exists(directory):
+#                         os.makedirs(directory)
+#                     filename = os.path.join(
+#                         directory, f'snapshot_{timestamp}.jpg')
+#                     cv2.imwrite(filename, frame)
+#                     print(f"Snapshot saved as {filename}")
+#                     next_snapshot_time = datetime.now() + timedelta(seconds=30)
+#                     self.send_image_to_api(filename)
+#             if cv2.waitKey(1) & 0xFF == ord('q'):  # Press 'q' to quit
+#                 self.running = False
+#                 break
+#         self.cap.release()
+#         cv2.destroyAllWindows()
 
-    def send_image_to_api(self, image_path):
-        with open(image_path, 'rb') as image:
-            files = {'image': (os.path.basename(
-                image_path), image, 'image/jpeg')}
-            response = requests.post(
-                'http://127.0.0.1:5001/process_image', files=files)
-            print(f"API response: {response.status_code}, {response.text}")
+#     def send_image_to_api(self, image_path):
+#         with open(image_path, 'rb') as image:
+#             files = {'image': (os.path.basename(
+#                 image_path), image, 'image/jpeg')}
+#             response = requests.post(
+#                 'http://127.0.0.1:5001/process_image', files=files)
+#             print(f"API response: {response.status_code}, {response.text}")
 
-    def post(self, request, *args, **kwargs):
-        return JsonResponse({'status': 'Camera is running and taking snapshots every 10 minutes'})
+#     def post(self, request, *args, **kwargs):
+#         return JsonResponse({'status': 'Camera is running and taking snapshots every 10 minutes'})
 
-    def destroy(self, request, *args, **kwargs):
-        self.running = False
-        self.snapshot_thread.join()
-        self.cap.release()
-        cv2.destroyAllWindows()
-        return JsonResponse({'status': 'Camera stopped'})
+#     def destroy(self, request, *args, **kwargs):
+#         self.running = False
+#         self.snapshot_thread.join()
+#         self.cap.release()
+#         cv2.destroyAllWindows()
+#         return JsonResponse({'status': 'Camera stopped'})
 
-    def __del__(self):
-        self.running = False
-        self.snapshot_thread.join()
-        self.cap.release()
-        cv2.destroyAllWindows()
+#     def __del__(self):
+#         self.running = False
+#         self.snapshot_thread.join()
+#         self.cap.release()
+#         cv2.destroyAllWindows()

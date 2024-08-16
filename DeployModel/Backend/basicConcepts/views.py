@@ -49,7 +49,7 @@ class ClassView(generics.ListCreateAPIView):
             if(not os.path.exists(directory_path)):
                 os.makedirs(directory_path, exist_ok=True)
 
-            os.makedirs(directory_path + '/embedding', exist_ok=True)
+            os.makedirs(directory_path + '/slot', exist_ok=True)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -234,8 +234,18 @@ class SlotInformation(generics.ListCreateAPIView):
         return Slot.objects.all()
 
     def perform_create(self, serializer):
+        print("perform_create called")
         if serializer.is_valid():
-            serializer.save()
+            validate_data = serializer.validated_data
+            class_instance = Class.objects.get(
+                id=validate_data['class_id'].id
+            )
+            slot_instance = serializer.save()
+            slot_name = slot_instance.subject  # Assuming the slot has a 'name' field
+            directory = os.path.join(
+                'Data', 'classes', class_instance.class_name, 'slot', slot_name)
+            if not os.path.exists(directory):
+                os.makedirs(directory)
         else:
             print(serializer.errors)
 
