@@ -49,7 +49,7 @@ def test():
     cv2.destroyAllWindows()
 
 
-image_path = "th.jpg"
+image_path = "me6.jpg"
 
 
 def post():
@@ -62,11 +62,10 @@ def post():
     with open(image_path, "rb") as image_file:
         print(type(image_file))
         files = {"image": ("test_image.jpg", image_file, "image/jpeg")}
-        print("1")
+
         # Send the request to the external API
         response = requests.post(
             'http://127.0.0.1:5001/process_image', files=files)
-        print("2")
 
     if response.status_code == 200:
         print("API request successful")
@@ -103,52 +102,67 @@ def post():
         return data
     # else:
     #     return JsonResponse({'error': 'Failed to process image'}, status=response.status_code)
+# -0.003185610519722104
 
 
 data = post()
 boxs = data.get('boxes', [])
+print(data['boxes'])
 embedding = data.get('embeddings')
-# print(data['embeddings'])
+# for item in embedding:
+#     print(item)
 
 
 def identify(face_embedding):
-    file_name = 'test_taylor.txt'  # the weekend
+    file_name = 'DeployModel\Backend\Data\classes\AI168\students\\50_Me\\50_Me.txt'  # the weekend
     with open(file_name, 'r') as file:
         target_embed = [list(map(float, line.split())) for line in file]
     # print(target_embed)
+    target_embed = torch.tensor(target_embed).clone().detach()
+    i = 0
+    ident = -1
     max_similarity = 0
-    face_embedding = torch.tensor(face_embedding)
-    target_embed = torch.tensor(target_embed)
-    similarity = cosine_similarity(
-        face_embedding.detach().cpu().numpy().reshape(1, -1),
-        target_embed.unsqueeze(0).detach().cpu().numpy().reshape(1, -1)
-    )
-    # if similarity > max_similarity:
-    #     max_similarity = similarity
-    #     print("giong")
-    if similarity > 0.6:
-        print("giong")
-        drawing(data, True)
+    for face in face_embedding:
+
+        face = torch.tensor(face).clone().detach()
+
+        similarity = cosine_similarity(
+            face.cpu().numpy().reshape(1, -1),
+            target_embed.unsqueeze(0).cpu().numpy().reshape(1, -1)
+        )
+        if similarity > max_similarity:
+            max_similarity = similarity
+            ident = i
+        print("Cosine Similarity:", similarity)
+        i += 1
+    if max_similarity > 0.5:
+        print(ident)
+        drawing(boxs[ident], True)
     else:
-        print("khong giong")
         drawing(data, False)
-    print("Cosine Similarity:", similarity)
+        # if similarity > 0.6:
+        #     print("giong")
+        #     drawing(boxs[i], True)
+        # else:
+        #     print("khong giong")
+        #     drawing(boxs[i], False)
 
 
-def drawing(data, iden):
+def drawing(boxi, iden):
     image = Image.open(image_path)
     draw = ImageDraw.Draw(image)
     align = 'center'
     font = ImageFont.truetype("arial.ttf", 20)
+    # boxing = data['boxes']
     if iden is True:
-        for box in data['boxes']:
-            x1, x2, y1, y2 = box
-            draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
-            # Position text slightly below the rectangle
-            text_position = (x1, y2 + 5)
-            # Vi tri        Text    Mau``
-            draw.text(text_position, "Taylor",
-                      align='center', fill="black", font=font)
+        # for box in boxi:
+        x1, x2, y1, y2 = boxi
+        draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
+        # Position text slightly below the rectangle
+        text_position = (x1, y2 + 5)
+        # Vi tri        Text    Mau``
+        draw.text(text_position, "vailon",
+                  align='center', fill="red", font=font)
         # Display the image with bounding boxes
         plt.figure(figsize=(12, 8))
         plt.imshow(np.array(image))
@@ -163,7 +177,7 @@ def drawing(data, iden):
             text_position = (x1, y2 + 5)
             # Vi tri        Text    Mau``
             draw.text(text_position, "deo giong",
-                      align=align, font=font, fill="black")
+                      align=align, font=font, fill="red")
         # Display the image with bounding boxes
         plt.figure(figsize=(12, 8))
         plt.imshow(np.array(image))
@@ -226,6 +240,87 @@ def draw_embeddings_on_image(image_path, boxes, embeddings):
 #     x1, x2, y1, y2 = box
 #     draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
 
+# from .models import *
 
-# test()
-# test_and_draw()
+# # test()
+# # test_and_draw()
+# class Helper:
+#     # i want to
+#     # get all student object in database
+#     # get student id to find path to that student
+#     def get_queryset(self):
+#         return Student.objects.all()
+
+#     # student = Student.objects.get(student_id=47)
+#     # print(student)
+#     # print("yolo")
+
+#     def get_student_image_paths(self):
+#         students = self.get_queryset()
+#         for student in students:
+#             print(
+#                 f"Student ID: {student.id}, Image Path: {student.image_path}")
+
+#     def identify(snapshot_embedd, studentId):
+#         return
+
+class CameraHandle(generics.ListCreateAPIView):
+    # student = Student.objects.get(student_id=47)
+    # print(student)
+
+    serializer_class = CameraInfor
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # 0 is the default camera
+        self.cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
+        self.running = True
+        self.snapshot_thread = threading.Thread(target=self.take_snapshots)
+        self.snapshot_thread.start()
+
+    def take_snapshots(self):
+        next_snapshot_time = datetime.now() + timedelta(seconds=30)
+        while self.running:
+            ret, frame = self.cap.read()
+            if ret:
+                cv2.imshow('Frame', frame)
+                if datetime.now() >= next_snapshot_time:
+                    timestamp = int(time.time())
+                    directory = 'Data/classes/AI168/slot'
+                    if not os.path.exists(directory):
+                        os.makedirs(directory)
+                    filename = os.path.join(
+                        directory, f'snapshot_{timestamp}.jpg')
+                    cv2.imwrite(filename, frame)
+                    print(f"Snapshot saved as {filename}")
+                    next_snapshot_time = datetime.now() + timedelta(seconds=30)
+                    self.send_image_to_api(filename)
+            if cv2.waitKey(1) & 0xFF == ord('q'):  # Press 'q' to quit
+                self.running = False
+                break
+        self.cap.release()
+        cv2.destroyAllWindows()
+
+    def send_image_to_api(self, image_path):
+        with open(image_path, 'rb') as image:
+            files = {'image': (os.path.basename(
+                image_path), image, 'image/jpeg')}
+            response = requests.post(
+                'http://127.0.0.1:5001/process_image', files=files)
+            print(f"API response: {response.status_code}, {response.text}")
+
+    def post(self, request, *args, **kwargs):
+        return JsonResponse({'status': 'Camera is running and taking snapshots every 10 minutes'})
+
+    def destroy(self, request, *args, **kwargs):
+        self.running = False
+        self.snapshot_thread.join()
+        self.cap.release()
+        cv2.destroyAllWindows()
+        return JsonResponse({'status': 'Camera stopped'})
+
+    def __del__(self):
+        self.running = False
+        self.snapshot_thread.join()
+        self.cap.release()
+        cv2.destroyAllWindows()

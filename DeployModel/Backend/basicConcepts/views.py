@@ -301,9 +301,21 @@ class GetTimeFrame(generics.ListCreateAPIView):
 
     def get_queryset(self):
         id = self.kwargs.get('slotId')
-        timeFrame = TimeFrame.objects.filter(slot_id=id)
-        print(timeFrame)
-        return timeFrame
+        return TimeFrame.objects.filter(slot_id=id)
+
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            print(serializer.errors)
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            slot_instance = TimeFrame.objects.all()
+            slot_instance.embedding
+            return Response({'message': 'Class deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+        except Slot.DoesNotExist:
+            return Response({'error': 'Class not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class GetAttendentStudentsAtOneFrame(generics.ListCreateAPIView):
