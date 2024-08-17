@@ -1,5 +1,4 @@
 import cv2
-# from .forms import ClassForm
 from django.shortcuts import render, redirect
 from rest_framework import generics
 from .models import *
@@ -20,6 +19,10 @@ import threading
 import time
 from datetime import datetime, timedelta
 from torchvision import models, transforms
+from sklearn.metrics.pairwise import cosine_similarity
+import matplotlib.pyplot as plt
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont
 # CLASS
 # get list class - url: "class/"
 # create new class- url: "addClass/"
@@ -138,7 +141,7 @@ class StudentFromClassId(generics.ListCreateAPIView):
                 )
                 os.makedirs
                 student.save()
-                print(serializer)
+                # print(serializer)
                 if 'image' in request.FILES:
                     image = Image.open(request.FILES['image'])
                     max_width, max_height = 300, 300  # Desired size
@@ -348,26 +351,30 @@ class GetTimeFrame(generics.ListCreateAPIView):
                 timeframe = TimeFrame(
                     slot_id=validate_data['slot_id']
                 )
-                # slot_instance = Slot.objects.get(
-                #     id=validate_data['slot_id'].id)
-                # # slot_id = validate_data['slot_id']
-                # class_instance = Class.objects.get(
-                #     id=slot_instance.class_id.id
-                # )
+                slot_instance = Slot.objects.get(
+                    id=validate_data['slot_id'].id)
+                # slot_id = validate_data['slot_id']
+                class_instance = Class.objects.get(
+                    id=slot_instance.class_id.id
+                )
                 # Pre-save timeframe to get ID
                 timeframe.save()
                 timeframe.embedding = validate_data['embedding']
                 timeframe.save()
+                print(timeframe.embedding)
 
                 image_path = timeframe.embedding
-                print(image_path)
 
                 data = ProcessImageData(str(image_path))
                 file_path = handlePath(image_path, 'images', 'embedding')
-                print(file_path)
-
+                # file_path is direct to embedding txt
                 HandleWriteText(data, file_path)
-
+                print(class_instance.id)
+                # Get student query list
+                identify = identify_cosine_similarity()
+                studentList = identify_cosine_similarity.itentify(
+                    class_instance.id, timeframe.slot_id, data, 0.5)
+                print(studentList)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 print(serializer.errors)
@@ -385,6 +392,133 @@ class GetTimeFrame(generics.ListCreateAPIView):
             return Response({'error': 'Class not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
+class identify_cosine_similarity:
+
+    @staticmethod
+    def getTextPath(file_path):
+        file_path_str = str(file_path)
+        path_components = file_path_str.split('/')
+
+        name, ext = os.path.splitext(path_components[-1])
+
+        new_file_name = name + '.txt'
+        path_components[-1] = new_file_name
+        embedd_path = '/'.join(path_components)
+        return embedd_path
+
+    @staticmethod
+    def draw_boxes(boxes, timeframe_path, id, name):
+        image = Image.open(timeframe_path)
+        draw = ImageDraw.Draw(image)
+        align = 'center'
+        font = ImageFont.truetype("arial.ttf", 20)
+        x1, x2, y1, y2 = boxes
+        draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
+        # Position text slightly below the rectangle
+        text_position = (x1, y2 + 5)
+        # Vi tri        Text    Mau``
+        draw.text(text_position, str(id) + '_' + name,
+                  align='center', fill="red", font=font)
+        # Display the image with bounding boxes
+        plt.figure(figsize=(12, 8))
+        plt.imshow(np.array(image))
+        plt.axis('off')
+        plt.title("Detected Faces")
+        plt.show()
+
+    @staticmethod
+    def itentify(classId, slotId, data, threshold=0.7):
+        students = Student.objects.filter(class_id_id=classId)
+        timeframes = TimeFrame.objects.filter(slot_id_id=slotId)
+        timeframes_id = [timeframe.id for timeframe in timeframes]
+        student_ids = [student.student_id for student in students]
+        student_names = [student.name for student in students]
+        student_image_paths = [student.image for student in students]
+        timeframe_image_paths = [
+            timeframe.embedding for timeframe in timeframes]
+        boxes = data['boxes']
+        embedding_timeframe = data['embeddings']
+        print(timeframes_id)
+        # for item in boxes:
+        #     print(item)
+        # print(type(student_image_paths))
+        # print(student_image_paths)
+        # print()
+        ''' For take each face compare to each student database '''
+        # count face
+        faceIndex = 0
+        timeframeIndex = timeframes_id[-1]
+        print(timeframeIndex)
+        for face in embedding_timeframe:
+            print(faceIndex)
+            # for studentId
+            stuIndex = -1
+            itemIndex = 0
+            face = torch.tensor(face).clone().detach()
+            # print(face)
+            max_similarity = 0
+            for item in student_image_paths:
+                # For retrive boxes with reference face
+                student_text_embedd = identify_cosine_similarity.getTextPath(
+                    item)
+                # print(student_text_embedd)
+                with open(student_text_embedd, 'r') as file:
+                    student_embedd = [list(map(float, line.split()))
+                                      for line in file]
+                student_embedd = torch.tensor(student_embedd).clone().detach()
+                # print(student_embedd)
+                similarity = cosine_similarity(
+                    face.cpu().numpy().reshape(1, -1),
+                    student_embedd.unsqueeze(0).cpu().numpy().reshape(1, -1)
+                )
+                if similarity > max_similarity:
+                    max_similarity = similarity
+                    stuIndex = itemIndex
+
+                # stuIndex += 1
+                itemIndex += 1
+            if max_similarity > threshold:
+                # print('vjp')
+                # print(student_ids[stuIndex])
+                identify_cosine_similarity.draw_boxes(boxes[faceIndex],
+                                                      timeframe_image_paths[-1],
+                                                      student_ids[stuIndex],
+                                                      student_names[stuIndex]
+                                                      )
+                print('veryvjp')
+                print(student_ids[stuIndex], student_names[stuIndex])
+                print("Cosine Similarity:", similarity)
+                print("co")
+            else:
+                print("khong co")
+
+            faceIndex += 1
+            timeframeIndex += 1
+        '''For take each student compare to face in picture'''
+
+        # for item in student_image_paths:
+        #     student_text_embedd = identify_cosine_similarity.getTextPath(item)
+        #     with open(student_text_embedd, 'r') as file:
+        #         student_embedd = [list(map(float, line.split())) for line in file]
+        #     student_embedd = torch.tensor(student_embedd).clone().detach()
+
+        #     max_similarity = 0
+        #     for face in embedding_timeframe:
+
+        #         face = torch.tensor(face).clone().detach()
+
+        #         similarity = cosine_similarity(
+        #             face.cpu().numpy().reshape(1, -1),
+        #             student_embedd.unsqueeze(0).cpu().numpy().reshape(1, 1)
+        #         )
+        #         if similarity > max_similarity:
+        #             max_similarity = similarity
+
+        # print(student_embedd)
+
+        return timeframes
+
+
 class GetAttendentStudentsAtOneFrame(generics.ListCreateAPIView):
     serializer_class = AttendentStudentsAtOneFrameSerializer
 
@@ -399,48 +533,6 @@ class GetAttendentStudentsAtOneFrame(generics.ListCreateAPIView):
 class CameraHandle(generics.ListCreateAPIView):
     serializer_class = CameraInfor
 
-
-# def __init__(self, *args, **kwargs):
-#     super().__init__(*args, **kwargs)
-#     # 0 is the default camera
-#     self.cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
-#     self.running = True
-#     self.snapshot_thread = threading.Thread(target=self.take_snapshots)
-#     self.snapshot_thread.start()
-
-# def take_snapshots(self):
-#     next_snapshot_time = datetime.now() + timedelta(seconds=30)
-#     while self.running:
-#         ret, frame = self.cap.read()
-#         if ret:
-#             cv2.imshow('Frame', frame)
-#             if datetime.now() >= next_snapshot_time:
-#                 timestamp = int(time.time())
-#                 filename = f'snapshot_{timestamp}.jpg'
-#                 cv2.imwrite(filename, frame)
-#                 print(f"Snapshot saved as {filename}")
-#                 next_snapshot_time = datetime.now() + timedelta(seconds=30)
-#         if cv2.waitKey(1) & 0xFF == ord('q'):  # Press 'q' to quit
-#             self.running = False
-#             break
-#     self.cap.release()
-#     cv2.destroyAllWindows()
-
-# def post(self, request, *args, **kwargs):
-#     return JsonResponse({'status': 'Camera is running and taking snapshots every 10 minutes'})
-
-# def destroy(self, request, *args, **kwargs):
-#     self.running = False
-#     self.snapshot_thread.join()
-#     self.cap.release()
-#     cv2.destroyAllWindows()
-#     return JsonResponse({'status': 'Camera stopped'})
-
-# def __del__(self):
-#     self.running = False
-#     self.snapshot_thread.join()
-#     self.cap.release()
-#     cv2.destroyAllWindows()
 
 # __________________ HA DJANGO ___________________________
 
