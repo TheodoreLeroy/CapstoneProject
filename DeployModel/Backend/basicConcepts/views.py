@@ -25,6 +25,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from django.utils import timezone
 import io
+from collections import Counter
 # CLASS
 # get list class - url: "class/"
 # create new class- url: "addClass/"
@@ -303,27 +304,6 @@ class SlotInformationFromIdClass(generics.ListCreateAPIView):
         id = self.kwargs.get('classId')
         return Slot.objects.filter(class_id=id)
 
-# Process image api
-class ProcessImageView(generics.ListCreateAPIView):
-    def post(self, request, *args, **kwargs):
-        # Get the image from the request
-        image = request.FILES.get('image')
-
-        if not image:
-            return JsonResponse({'error': 'No image provided'}, status=400)
-
-        # Prepare the files for the API request
-        files = {'image': (image.name, image, image.content_type)}
-
-        # Send the request to the external API
-        response = requests.post(
-            'http://127.0.0.1:5001/process_image', files=files)
-
-        if response.status_code == 200:
-            data = response.json()
-            return JsonResponse(data)
-        else:
-            return JsonResponse({'error': 'Failed to process image'}, status=response.status_code)
 
 # Get 1 slot-information with id - url: "slot<int:slotId>/"
 
@@ -356,6 +336,9 @@ class GetTimeFrame(generics.ListCreateAPIView):
                 class_instance = Class.objects.get(
                     id=slot_instance.class_id.id
                 )
+                # student = Student.objects.filter(
+                #     class_id=validate_data['slot_id']
+                # )
                 # Pre-save timeframe to get ID
                 timeframe.save()
                 # timeframe.embedding = validate_data['embedding'] anh png
@@ -398,6 +381,8 @@ class GetTimeFrame(generics.ListCreateAPIView):
                 self.save_attend_student(
                     AttendList, slot_instance.id, timeframe.id)
 
+                self.Caculate_attend_percent(
+                    AttendList, slot_instance.id)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 print(serializer.errors)
@@ -421,8 +406,43 @@ class GetTimeFrame(generics.ListCreateAPIView):
             if facesOneFrame.is_valid():
                 facesOneFrame.save()
                 print("Saved into database")
+
             else:
                 print(facesOneFrame.errors)
+
+    def Caculate_attend_percent(self, AttendList, slot_id, interval=15):
+        frame_instance = AttendentStudentsAtOneFrame.objects.filter(
+            slot=slot_id)
+        slot_instance = Slot.objects.get(
+            id=slot_id
+        )
+
+        duration = self.getDuration(slot_instance)
+        total_frames = duration/interval
+        print(duration / interval)
+        unique_student_ids = frame_instance.values_list(
+            'student_id', flat=True)
+        id_counts = Counter(unique_student_ids)
+
+        threshold = 0.8 * total_frames
+        for student_id, count in id_counts.items():
+            if count >= threshold:
+                print(
+                    f'ID {student_id} appears in {count} frames, which is {count / total_frames * 100:.2f}% and exceeds 80% of the total frames.')
+            else:
+                print(
+                    f'ID {student_id} appears in {count} frames, which is {count / total_frames * 100:.2f}% and does not exceed 80% of the total frames.')
+            # if frame_instance.acount()
+
+    def getDuration(self, slot_instance):
+        today = datetime.today().date()
+        time_start = datetime.combine(today,
+                                      slot_instance.time_start)
+        time_end = datetime.combine(today,
+                                    slot_instance.time_end)
+        duration = time_end - time_start
+        duration_minutes = duration.total_seconds() / 60
+        return duration_minutes
 
     def delete(self, request, *args, **kwargs):
         try:
@@ -431,6 +451,7 @@ class GetTimeFrame(generics.ListCreateAPIView):
             return Response({'message': 'Class deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
         except Slot.DoesNotExist:
             return Response({'error': 'Class not found'}, status=status.HTTP_404_NOT_FOUND)
+
 
 class GetAttendentAtOneFrame(generics.ListAPIView):
     serializer_class = AttendentStudentsAtOneFrameSerializer
@@ -509,7 +530,7 @@ class identify_cosine_similarity:
             # for studentId
             stuIndex = -1
             itemIndex = 0
-            
+
             face = torch.tensor(face).clone().detach()
             # print(face)
             max_similarity = 0
