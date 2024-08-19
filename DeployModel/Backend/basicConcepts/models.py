@@ -45,6 +45,7 @@ class Slot(models.Model):
     time_start = models.TimeField()
     time_end = models.TimeField()
     status = models.BooleanField(default=False)
+    dateTime = models.DateTimeField(auto_now_add=True)
 
 
 class Teacher(models.Model):
@@ -118,12 +119,5 @@ class Logs(models.Model):
     slot_id = models.ForeignKey(Slot, on_delete=models.CASCADE)
     student_id = models.ForeignKey(Student, on_delete=models.CASCADE)
     # timeframe_id = models.ForeignKey(TimeFrame, on_delete=models.CASCADE)
-    attend_status = models.BinaryField(default=b'')
-
-# contain status one student for each row after slot
-
-
-class AttendentStudentsAtAllFrame(models.Model):
-    log_id = models.ForeignKey(Logs, on_delete=models.CASCADE)
-    student_id = models.CharField(max_length=255)
-    total_attendent = models.IntegerField()
+    attend_status = models.BooleanField(default=False)
+    time = models.DateTimeField(auto_now_add=True)

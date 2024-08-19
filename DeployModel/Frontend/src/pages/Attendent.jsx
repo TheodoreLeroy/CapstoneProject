@@ -1,7 +1,5 @@
 //import from libarary
-import {
-  ClockCircleTwoTone
-} from "@ant-design/icons";
+import { ClockCircleTwoTone } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -113,12 +111,12 @@ function Attendent() {
 
     if (
       ((duration[1] - time) / 1000 ==
-      Math.floor(((duration[1] / 15) * indexTimeFrame) / 1000) &&
-      indexTimeFrame <= 15 &&
-      isRunning &&
-      timeFrames.length < 15 &&
-      (duration[1] - time) / 1000 != 0) ||
-      ((duration[1] - time) / 1000 == 1)
+        Math.floor(((duration[1] / 15) * indexTimeFrame) / 1000) &&
+        indexTimeFrame <= 15 &&
+        isRunning &&
+        timeFrames.length < 15 &&
+        (duration[1] - time) / 1000 != 0) ||
+      (duration[1] - time) / 1000 == 1
     ) {
       captureImage();
       setIndexTimeFrame(indexTimeFrame + 1);
@@ -156,7 +154,6 @@ function Attendent() {
       ID: student.student_id,
       picture: <Image width={200} src={student.image} />,
       attendStatus: "attentdent",
-
     })) || [];
 
   const tableStudent = (dataSource) => {
@@ -225,17 +222,17 @@ function Attendent() {
   };
 
   const handleStatusClick = async () => {
-    if (!isChangingStatus){
+    if (!isChangingStatus) {
       setIsChangingStatus(!isChangingStatus);
     }
-    console.log(isChangingStatus)
+    console.log(isChangingStatus);
   };
 
   const handleSaveButton = async () => {
     if (isChangingStatus) {
       setIsChangingStatus(!isChangingStatus);
     }
-    console.log(isChangingStatus)
+    console.log(isChangingStatus);
   };
 
   // ====================================================== progress bar ======================================================
@@ -312,24 +309,21 @@ function Attendent() {
     label: device.label || `Camera ${index + 1}`,
   }));
 
-
-
   const siderStyle = {
-    overflow: 'auto',
-    height: '100vh',
-    position: 'fixed',
+    overflow: "auto",
+    height: "100vh",
+    position: "fixed",
     insetInlineStart: 0,
     top: 0,
     bottom: 0,
-    scrollbarWidth: 'thin',
-    scrollbarColor: 'unset',
+    scrollbarWidth: "thin",
+    scrollbarColor: "unset",
   };
 
   // ====================================================== Return ======================================================
   return (
-   
     <Layout hasSider>
-       {/* ====================================================== Sider ====================================================== */}
+      {/* ====================================================== Sider ====================================================== */}
       <Sider className="sidebar" style={siderStyle}>
         <Logo />
         <MenuList currnentKey={"activity"} />
@@ -339,7 +333,8 @@ function Attendent() {
         className="attendent-information"
         style={{
           marginInlineStart: 200,
-        }}>
+        }}
+      >
         {/* ====================================================== Slot Information ====================================================== */}
         <Row style={{ width: "100%", justifyContent: "center" }}>
           <Col>
@@ -445,7 +440,7 @@ function Attendent() {
                   }}
                 ></video>
               </Row>
-              <Row style={{ width: "100%", justifyContent:"center" }}>
+              <Row style={{ width: "100%", justifyContent: "center" }}>
                 <Col>
                   <Select
                     value={selectedDeviceId}
@@ -455,9 +450,10 @@ function Attendent() {
                     placeholder="Select a camera"
                   />
                 </Col>
-                {/* <Col>
+                {/* show button */}
+                <Col>
                   <Button onClick={captureImage}>take picture</Button>
-                </Col> */}
+                </Col>
               </Row>
               <canvas
                 ref={canvasRef}
@@ -478,7 +474,9 @@ function Attendent() {
             margin: "auto",
             width: "80%",
           }}
-          tabBarExtraContent={isChangingStatus && <Button onClick={handleSaveButton}>Save</Button>}
+          tabBarExtraContent={
+            isChangingStatus && <Button onClick={handleSaveButton}>Save</Button>
+          }
         >
           <Tabs.TabPane tab={"All student"} key={0}>
             {tableStudent(dataSource)}

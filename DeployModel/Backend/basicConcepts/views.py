@@ -26,6 +26,7 @@ from PIL import Image, ImageDraw, ImageFont
 from django.utils import timezone
 import io
 from collections import Counter
+from django.db.models import Q
 # CLASS
 # get list class - url: "class/"
 # create new class- url: "addClass/"
@@ -280,6 +281,7 @@ class SlotInformation(generics.ListCreateAPIView):
             if not os.path.exists(directory):
                 os.makedirs(directory + '\images')
                 os.makedirs(directory + '\embedding')
+
         else:
             print(serializer.errors)
 
@@ -326,6 +328,7 @@ class GetTimeFrame(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         try:
             if serializer.is_valid():
+                print('he1')
                 validate_data = serializer.validated_data
                 timeframe = TimeFrame(
                     slot_id=validate_data['slot_id']
@@ -336,25 +339,37 @@ class GetTimeFrame(generics.ListCreateAPIView):
                 class_instance = Class.objects.get(
                     id=slot_instance.class_id.id
                 )
-                # student = Student.objects.filter(
-                #     class_id=validate_data['slot_id']
-                # )
+                print('he2')
+                logs = Logs.objects.filter(slot_id=slot_instance.id).first()
+                # print(timezone.now())
+                # print(type(logs.time))
+                if logs is None:
+                    self.create_logs_student(slot_instance)
+                else:
+                    datetime_obj = datetime.fromisoformat(str(logs.time))
+                    timezone_obj = datetime.fromisoformat(str(timezone.now()))
+                    if not (datetime_obj.year == timezone_obj.year and
+                            datetime_obj.month == timezone_obj.month and
+                            datetime_obj.day == timezone_obj.day):
+                        self.create_logs_student(slot_instance)
+                if logs:
+                    logs_instance = Logs.objects.filter(
+                        Q(time__year=logs.time.year) &
+                        Q(time__month=logs.time.month) &
+                        Q(time__day=logs.time.day),
+                        slot_id=slot_instance
+                    )
+                print('he3')
+
                 # Pre-save timeframe to get ID
                 timeframe.save()
-                # timeframe.embedding = validate_data['embedding'] anh png
-                # timeframe.save()
-                # print(timeframe.embedding)
                 current_datetime = datetime.now().strftime('%Y%m%d%H%M')
                 file_path = os.path.join('Data', 'classes', class_instance.class_name, 'slot', slot_instance.subject, 'embedding',
                                          f'{timeframe.id}_{current_datetime}.txt')
-                print(file_path)
 
-                # data = ProcessImageData(str(image_path))
-                # data = ProcessImageData(validate_data['embedding'])
                 embedding_file = validate_data['embedding']
                 file_data = embedding_file.read()
-                # test = f'DeployModel\Backend\Data\classes\MyClas\slot\Math\images\\264_202408190010.jpg'
-                # print(file_data)
+
                 files = {"image": ("test_image.jpg", file_data,
                                    embedding_file.content_type)}
                 response = requests.post(
@@ -366,11 +381,9 @@ class GetTimeFrame(generics.ListCreateAPIView):
                     print("API request failed")
                     print(response.json())
 
-                # print(data)
-                # file_path = handlePath(image_path, 'images', 'embedding')
                 # file_path is direct to embedding txt
                 HandleWriteText(data, file_path)
-                print("break")
+
                 # Get student query list
                 image_path, AttendList = identify_cosine_similarity.itentify(file_data,
                                                                              class_instance, timeframe.slot_id, data, 0.5)
@@ -382,7 +395,7 @@ class GetTimeFrame(generics.ListCreateAPIView):
                     AttendList, slot_instance.id, timeframe.id)
 
                 self.Caculate_attend_percent(
-                    AttendList, slot_instance.id)
+                    logs_instance, slot_instance.id)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 print(serializer.errors)
@@ -400,8 +413,8 @@ class GetTimeFrame(generics.ListCreateAPIView):
                     'time_frame': frame_id
                 }
             )
-            print(" ========= facesOneFrame ========= ")
-            print(facesOneFrame)
+            # print(" ========= facesOneFrame ========= ")
+            # print(facesOneFrame)
 
             if facesOneFrame.is_valid():
                 facesOneFrame.save()
@@ -410,15 +423,37 @@ class GetTimeFrame(generics.ListCreateAPIView):
             else:
                 print(facesOneFrame.errors)
 
-    def Caculate_attend_percent(self, AttendList, slot_id, interval=15):
+    def create_logs_student(self, slot_instance):
+        student_list_of_slot = Student.objects.filter(
+            class_id_id=slot_instance.class_id
+        )
+        # print(student_list_of_slot)
+        for student in student_list_of_slot:
+            logs_data = {
+                'student_id': student.student_id,
+                'slot_id': slot_instance.id,
+                'time': timezone.now().date()
+            }
+            logs = LogDetail(data=logs_data)
+            if logs.is_valid():
+                logs.save()
+                print(f'Log initialized for student ID {student.student_id}')
+            else:
+                print(f'Errors: {logs.errors}')
+
+    def Caculate_attend_percent(self, log_instance, slot_id, interval=15):
+        print('ji')
         frame_instance = AttendentStudentsAtOneFrame.objects.filter(
             slot=slot_id)
         slot_instance = Slot.objects.get(
             id=slot_id
         )
+        student_list_of_slot = Student.objects.filter(
+            class_id_id=slot_instance.class_id
+        )
 
         duration = self.getDuration(slot_instance)
-        total_frames = duration/interval
+        total_frames = abs(duration/interval)
         print(duration / interval)
         unique_student_ids = frame_instance.values_list(
             'student_id', flat=True)
@@ -426,13 +461,29 @@ class GetTimeFrame(generics.ListCreateAPIView):
 
         threshold = 0.8 * total_frames
         for student_id, count in id_counts.items():
+            # print(student_id)
             if count >= threshold:
-                print(
-                    f'ID {student_id} appears in {count} frames, which is {count / total_frames * 100:.2f}% and exceeds 80% of the total frames.')
+                try:
+                    stu_attend = log_instance.get(student_id=student_id)
+                    stu_attend.attend_status = True
+                    stu_attend.save()
+                    print(
+                        f'ID {student_id} appears in {count} frames, which is {count / total_frames * 100:.2f}% and exceeds 80% of the total frames.')
+                except Logs.DoesNotExist:
+                    print('not exist')
             else:
+                # logs_data = {
+                #     'student_id': student_id,
+                #     'slot_id': slot_id
+                # }
+                # logs = LogDetail(data=logs_data)
+                # if logs.is_valid():
+                #     logs.save()
+                #     print('saved')
+                # else:
+                #     print(logs.errors)
                 print(
                     f'ID {student_id} appears in {count} frames, which is {count / total_frames * 100:.2f}% and does not exceed 80% of the total frames.')
-            # if frame_instance.acount()
 
     def getDuration(self, slot_instance):
         today = datetime.today().date()
