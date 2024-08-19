@@ -106,22 +106,24 @@ class TimeFrame(models.Model):
 
 
 class AttendentStudentsAtOneFrame(models.Model):
-    embedding = models.JSONField()
-    student_id = models.ForeignKey(Student, on_delete=models.CASCADE)
+    slot = models.IntegerField()
+    student_id = models.IntegerField()
     time_frame = models.ForeignKey(
         TimeFrame, on_delete=models.CASCADE, related_name='time_frame')
 
 # contain last status of slot
 
 
-class Log(models.Model):
+class Logs(models.Model):
     slot_id = models.ForeignKey(Slot, on_delete=models.CASCADE)
+    student_id = models.ForeignKey(Student, on_delete=models.CASCADE)
+    # timeframe_id = models.ForeignKey(TimeFrame, on_delete=models.CASCADE)
     attend_status = models.BinaryField(default=b'')
 
 # contain status one student for each row after slot
 
 
 class AttendentStudentsAtAllFrame(models.Model):
-    log_id = models.ForeignKey(Log, on_delete=models.CASCADE)
+    log_id = models.ForeignKey(Logs, on_delete=models.CASCADE)
     student_id = models.CharField(max_length=255)
     total_attendent = models.IntegerField()

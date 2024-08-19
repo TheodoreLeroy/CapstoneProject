@@ -83,10 +83,11 @@ function Attendent() {
     }
 
     if (
-      (duration[1] - time) / 1000 == Math.floor(((duration[1] / 15) * indexTimeFrame) / 1000)
-      && indexTimeFrame <= 15
-      && isRunning
-      && timeFrames.length < 15
+      (duration[1] - time) / 1000 ==
+        Math.floor(((duration[1] / 15) * indexTimeFrame) / 1000) &&
+      indexTimeFrame <= 15 &&
+      isRunning &&
+      timeFrames.length < 15
     ) {
       captureImage();
       setIndexTimeFrame(indexTimeFrame + 1);
@@ -95,12 +96,15 @@ function Attendent() {
       setIndexTimeFrame(indexTimeFrame + 1);
     }
 
-    console.log("time: ", duration[1] - time, "   mock: ", (Math.floor((duration[1] / 15) * indexTimeFrame)));
-
+    console.log(
+      "time: ",
+      duration[1] - time,
+      "   mock: ",
+      Math.floor((duration[1] / 15) * indexTimeFrame)
+    );
 
     return () => clearInterval(interval); // Cleanup interval on component unmount
   }, [isRunning, time]);
-
 
   const setTimer = () => {
     const milliseconds = duration[1]; // Convert minutes to milliseconds
@@ -151,7 +155,6 @@ function Attendent() {
     setTimeFrame(timeFrameData);
   };
 
-
   // ============= data source =============
   const dataSource =
     students?.map((student) => ({
@@ -163,8 +166,8 @@ function Attendent() {
     studentsInOneFrame?.map((student) => ({
       name: student.name,
       ID: student.id,
-      //   picture: 1,
-      picture: <Image width={128} src={student.image} />, // Adjust based on your student object structure
+      picture: 1,
+      //picture: <Image width={128} src={student.image} />, // Adjust based on your student object structure
     })) || [];
 
   const tableStudent = (dataSource) => {
@@ -229,10 +232,9 @@ function Attendent() {
     setTimer();
   };
 
-
   // ======================================= progress bar =======================================
-  const progressPercent = duration[1] > 0 ? 100 - (time / duration[1]) * 100 : 0;
-
+  const progressPercent =
+    duration[1] > 0 ? 100 - (time / duration[1]) * 100 : 0;
 
   // ====================================================== Camera ======================================================
   const [devices, setDevices] = useState([]);
@@ -269,7 +271,6 @@ function Attendent() {
     videoRef.current.srcObject = null;
   };
 
-
   const captureImage = () => {
     const context = canvasRef.current.getContext("2d");
     context.drawImage(
@@ -289,10 +290,13 @@ function Attendent() {
       formData.append("embedding", file);
       formData.append("slot_id", slotInfomation.id);
 
-      const res = await api.post(`slot${slotInfomation.id}/timeFrame/`, formData);
+      const res = await api.post(
+        `slot${slotInfomation.id}/timeFrame/`,
+        formData
+      );
       if (res.status === 201) {
         message.info(`Timeframe add successfully!`);
-        getTimeFrame()
+        getTimeFrame();
       }
     });
   };
@@ -301,7 +305,6 @@ function Attendent() {
     value: device.deviceId,
     label: device.label || `Camera ${index + 1}`,
   }));
-
 
   // ====================================================== Return ======================================================
   return (
@@ -407,7 +410,11 @@ function Attendent() {
                   autoPlay
                   width="300"
                   height="200"
-                  style={{ border: "1px solid ", borderRadius: "5px", margin: "10px" }}
+                  style={{
+                    border: "1px solid ",
+                    borderRadius: "5px",
+                    margin: "10px",
+                  }}
                 ></video>
               </Row>
               <Row style={{ width: "100%" }}>
