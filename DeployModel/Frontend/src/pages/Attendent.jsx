@@ -13,8 +13,8 @@ import {
   Tooltip,
   Progress,
   Select,
-  notification,
   message,
+  Checkbox,
 } from "antd";
 
 const { Text } = Typography;
@@ -48,6 +48,7 @@ function Attendent() {
   const [slotInfomation, setSlotInfomation] = useState([]);
   const [timeFrames, setTimeFrame] = useState([]);
   const [studentsInOneFrame, setStudentsInOneFrame] = useState([]);
+  const [isChangingStatus, setIsChangingStatus] = useState(false);
 
   const [duration, setDuration] = useState(["", 0]);
   const [indexTimeFrame, setIndexTimeFrame] = useState(0);
@@ -57,67 +58,13 @@ function Attendent() {
   const [isRunning, setIsRunning] = useState(false);
   const [time, setTime] = useState(0);
 
-  // ======================================= get data =======================================
+  // ===================================================== get data =====================================================
   useEffect(() => {
     getClass();
     getSlot();
     getStudent();
     getTimeFrame();
   }, []);
-
-  // ===================================================== TIMER =====================================================
-  useEffect(() => {
-    let interval;
-
-    if (isRunning && time > 0) {
-      interval = setInterval(() => {
-        setTime((prevTime) => {
-          if (prevTime <= 1000) {
-            clearInterval(interval);
-            setIsRunning(false);
-            return 0;
-          }
-          return prevTime - 1000;
-        });
-      }, 1000); // Update time every second
-    }
-
-    if (
-      (duration[1] - time) / 1000 ==
-        Math.floor(((duration[1] / 15) * indexTimeFrame) / 1000) &&
-      indexTimeFrame <= 15 &&
-      isRunning &&
-      timeFrames.length < 15
-    ) {
-      captureImage();
-      setIndexTimeFrame(indexTimeFrame + 1);
-    } else if (indexTimeFrame >= 15 || timeFrames.length >= 15) {
-      stopCamera();
-      setIndexTimeFrame(indexTimeFrame + 1);
-    }
-
-    console.log(
-      "time: ",
-      duration[1] - time,
-      "   mock: ",
-      Math.floor((duration[1] / 15) * indexTimeFrame)
-    );
-
-    return () => clearInterval(interval); // Cleanup interval on component unmount
-  }, [isRunning, time]);
-
-  const setTimer = () => {
-    const milliseconds = duration[1]; // Convert minutes to milliseconds
-    setTime(milliseconds);
-  };
-
-  const formatTime = (time) => {
-    const seconds = `0${Math.floor((time / 1000) % 60)}`.slice(-2);
-    const minutes = `0${Math.floor((time / 60000) % 60)}`.slice(-2);
-    const hours = `0${Math.floor(time / 3600000)}`.slice(-2);
-
-    return `${hours}:${minutes}:${seconds}`;
-  };
 
   // ===================================================== GET DATA =====================================================
   const getClass = async () => {
@@ -154,20 +101,67 @@ function Attendent() {
     );
     setTimeFrame(timeFrameData);
   };
+  // ===================================================== TIMER =====================================================
+  useEffect(() => {
+    let interval;
 
-  // ============= data source =============
+    if (isRunning && time > 0) {
+      interval = setInterval(() => {
+        setTime((prevTime) => {
+          if (prevTime <= 1000) {
+            clearInterval(interval);
+            setIsRunning(false);
+            return 0;
+          }
+          return prevTime - 1000;
+        });
+      }, 1000); // Update time every second
+    }
+
+    if (
+      (duration[1] - time) / 1000 ==
+      Math.floor(((duration[1] / 15) * indexTimeFrame) / 1000) &&
+      indexTimeFrame <= 15 &&
+      isRunning &&
+      timeFrames.length < 15
+    ) {
+      captureImage();
+      setIndexTimeFrame(indexTimeFrame + 1);
+    } else if (indexTimeFrame >= 15 || timeFrames.length >= 15) {
+      stopCamera();
+      setIndexTimeFrame(indexTimeFrame + 1);
+    }
+
+    return () => clearInterval(interval); // Cleanup interval on component unmount
+  }, [isRunning, time]);
+
+  const setTimer = () => {
+    const milliseconds = duration[1]; // Convert minutes to milliseconds
+    setTime(milliseconds);
+  };
+
+  const formatTime = (time) => {
+    const seconds = `0${Math.floor((time / 1000) % 60)}`.slice(-2);
+    const minutes = `0${Math.floor((time / 60000) % 60)}`.slice(-2);
+    const hours = `0${Math.floor(time / 3600000)}`.slice(-2);
+
+    return `${hours}:${minutes}:${seconds}`;
+  };
+
+  // ====================================================== data source ======================================================
   const dataSource =
     students?.map((student) => ({
       name: student.name,
-      ID: student.id,
+      ID: student.student_id,
       picture: <Image width={200} src={student.image} />, // Adjust based on your student object structure
     })) || [];
   const dataSourceAtOneFrame =
     studentsInOneFrame?.map((student) => ({
       name: student.name,
-      ID: student.id,
-      picture: 1,
-      //picture: <Image width={128} src={student.image} />, // Adjust based on your student object structure
+      ID: student.student_id,
+      picture: <Image width={200} src={student.image} />,
+      attendStatus: "attentdent",
+
     })) || [];
 
   const tableStudent = (dataSource) => {
@@ -179,9 +173,6 @@ function Attendent() {
               title: "Name",
               dataIndex: "name",
               key: "name",
-              render: (image) => (
-                <div style={{ fontSize: "15px" }}>{image}</div>
-              ),
             },
             {
               title: "ID",
@@ -193,11 +184,16 @@ function Attendent() {
               dataIndex: "picture",
               key: "picture",
               render: (image) => (
-                <div style={{ textAlign: "left" }}>{image}</div>
+                <div style={{ textAlign: "center" }}>{image}</div>
               ),
             },
             {
               title: "Attend status",
+              dataIndex: "attendStatus",
+              key: "attendStatus",
+              render: () => (
+                <Checkbox onClick={handleStatusClick}>Attendent</Checkbox>
+              ),
             },
           ]}
           dataSource={dataSource}
@@ -206,18 +202,19 @@ function Attendent() {
     );
   };
 
-  // ============= handle click =============
+  // ====================================================== handle click ======================================================
   const handleTabClick = async (key) => {
-    console.log(key);
+    console.log("Key: ", key);
 
     if (key != 0) {
       const data = await GetDataFromRoute(`timeFrame${key}/`);
       const studentIds = data.map((item) => item.student_id);
 
       setStudentsInOneFrame(
-        students.filter((student) => studentIds.includes(student.id))
+        students.filter((student) => studentIds.includes(student.student_id))
       );
-      console.log(studentsInOneFrame);
+      console.log("studentsInOneFrame: ", studentsInOneFrame);
+      console.log("studentIds: ", studentIds);
     }
   };
 
@@ -232,7 +229,21 @@ function Attendent() {
     setTimer();
   };
 
-  // ======================================= progress bar =======================================
+  const handleStatusClick = async () => {
+    if (!isChangingStatus){
+      setIsChangingStatus(!isChangingStatus);
+    }
+    console.log(isChangingStatus)
+  };
+
+  const handleSaveButton = async () => {
+    if (isChangingStatus) {
+      setIsChangingStatus(!isChangingStatus);
+    }
+    console.log(isChangingStatus)
+  };
+
+  // ====================================================== progress bar ======================================================
   const progressPercent =
     duration[1] > 0 ? 100 - (time / duration[1]) * 100 : 0;
 
@@ -306,14 +317,35 @@ function Attendent() {
     label: device.label || `Camera ${index + 1}`,
   }));
 
+
+
+  const siderStyle = {
+    overflow: 'auto',
+    height: '100vh',
+    position: 'fixed',
+    insetInlineStart: 0,
+    top: 0,
+    bottom: 0,
+    scrollbarWidth: 'thin',
+    scrollbarColor: 'unset',
+  };
+
   // ====================================================== Return ======================================================
   return (
-    <Layout>
-      <Sider className="sidebar">
+   
+    <Layout hasSider>
+       {/* ====================================================== Sider ====================================================== */}
+      <Sider className="sidebar" style={siderStyle}>
         <Logo />
         <MenuList currnentKey={"activity"} />
       </Sider>
-      <div className="attendent-information">
+      {/* ====================================================== MAIN ====================================================== */}
+      <Layout
+        className="attendent-information"
+        style={{
+          marginInlineStart: 200,
+        }}>
+        {/* ====================================================== Slot Information ====================================================== */}
         <Row style={{ width: "100%", justifyContent: "center" }}>
           <Col>
             <Card
@@ -341,6 +373,7 @@ function Attendent() {
                 </Tooltip>
               }
             >
+              {/* infomation */}
               <Row>
                 <Col span={8}>
                   <Text strong>Subject:</Text>
@@ -445,6 +478,12 @@ function Attendent() {
           className="Tabs-container"
           size="large"
           onTabClick={handleTabClick}
+          style={{
+            minWidth: "750px",
+            margin: "auto",
+            width: "80%",
+          }}
+          tabBarExtraContent={isChangingStatus && <Button onClick={handleSaveButton}>Save</Button>}
         >
           <Tabs.TabPane tab={"All student"} key={0}>
             {tableStudent(dataSource)}
@@ -458,7 +497,7 @@ function Attendent() {
             </Tabs.TabPane>
           ))}
         </Tabs>
-      </div>
+      </Layout>
     </Layout>
   );
 }

@@ -46,7 +46,7 @@ class AttendentStudentsAtOneFrameSerializer(serializers.ModelSerializer):
 
 class LogDetail(serializers.ModelSerializer):
     class Meta:
-        models = Logs
+        model = Logs
         fields = '__all__'
 
 

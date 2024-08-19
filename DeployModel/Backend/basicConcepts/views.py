@@ -261,7 +261,6 @@ def ProcessImageData(path):
 # get slot-infomation - url: "slot/"
 # post create-slot - url: "class=<int:classId>/createSlot"
 
-
 class SlotInformation(generics.ListCreateAPIView):
     serializer_class = SlotInfomationSerializers
 
@@ -303,9 +302,6 @@ class SlotInformationFromIdClass(generics.ListCreateAPIView):
     def get_queryset(self):
         id = self.kwargs.get('classId')
         return Slot.objects.filter(class_id=id)
-
-# class RunCameraInSlot(generics.ListCreateAPIView):
-
 
 # Process image api
 class ProcessImageView(generics.ListCreateAPIView):
@@ -411,7 +407,7 @@ class GetTimeFrame(generics.ListCreateAPIView):
         return Response({"detail": "Internal Server Error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def save_attend_student(self, AttendList, slot_id, frame_id):
-        for id, name in zip(AttendList['id'], AttendList['name']):
+        for id in AttendList:
             facesOneFrame = AttendentStudentsAtOneFrameSerializer(
                 data={
                     'slot': slot_id,
@@ -419,6 +415,7 @@ class GetTimeFrame(generics.ListCreateAPIView):
                     'time_frame': frame_id
                 }
             )
+            print(" ========= facesOneFrame ========= ")
             print(facesOneFrame)
 
             if facesOneFrame.is_valid():
@@ -434,6 +431,13 @@ class GetTimeFrame(generics.ListCreateAPIView):
             return Response({'message': 'Class deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
         except Slot.DoesNotExist:
             return Response({'error': 'Class not found'}, status=status.HTTP_404_NOT_FOUND)
+
+class GetAttendentAtOneFrame(generics.ListAPIView):
+    serializer_class = AttendentStudentsAtOneFrameSerializer
+
+    def get_queryset(self):
+        id = self.kwargs.get('timeFrameId')
+        return AttendentStudentsAtOneFrame.objects.filter(time_frame_id=id)
 
 
 class identify_cosine_similarity:
@@ -492,6 +496,7 @@ class identify_cosine_similarity:
         student_ids = [student.student_id for student in students]
         student_names = [student.name for student in students]
         student_image_paths = [student.image for student in students]
+        attendentStudentsID = []
         boxes = data['boxes']
         embedding_timeframe = data['embeddings']
         ''' For take each face compare to each student database '''
@@ -504,6 +509,7 @@ class identify_cosine_similarity:
             # for studentId
             stuIndex = -1
             itemIndex = 0
+            
             face = torch.tensor(face).clone().detach()
             # print(face)
             max_similarity = 0
@@ -537,6 +543,7 @@ class identify_cosine_similarity:
                     AttenList, student_ids[stuIndex], student_names[stuIndex])
                 print(student_ids[stuIndex], student_names[stuIndex])
                 print("Cosine Similarity:", max_similarity)
+                attendentStudentsID.append(student_ids[stuIndex])
             else:
                 FaceList['boxes'].append(boxes[faceIndex])
                 FaceList['id'].append('')
@@ -549,12 +556,17 @@ class identify_cosine_similarity:
                                                      timeframes_id,
                                                      image_bin
                                                      )
-        return path, AttenList
+        # print(" ================== attendentStudentsID ================== ")
+        # print(attendentStudentsID)
+        # print(" ================== path ================== ")
+        # print(path)
+        # print(" ================== AttenList ================== ")
+        # print(AttenList)
+        return path, attendentStudentsID
 
 
 class LogListCreateView(generics.ListCreateAPIView):
     serializer_class = LogDetail
-    print('fuck')
 
     def get_queryset(self):
         return Logs.objects.all()
