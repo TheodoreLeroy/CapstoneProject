@@ -227,8 +227,6 @@ function Class() {
     formData.append("class_id", idClass);
     formData.append("image", imageStudent);
 
-    console.log(imageStudent);
-
     try {
       const res = await api.post(`addStudent/${idClass}/`, formData);
       if (res.status === 201) {
@@ -426,6 +424,8 @@ function Class() {
           >
             <Input
               onChange={(e) => {
+                console.log(e);
+                
                 setNewStudent(e.target.value);
               }}
             />
