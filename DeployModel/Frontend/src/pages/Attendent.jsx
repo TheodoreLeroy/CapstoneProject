@@ -1,45 +1,39 @@
 //import from libarary
-import React, { useState, useEffect, useRef } from "react";
 import {
-  Layout,
+  ClockCircleTwoTone
+} from "@ant-design/icons";
+import {
+  Button,
   Card,
+  Checkbox,
+  Col,
+  Image,
+  Layout,
+  Progress,
+  Row,
+  Select,
   Table,
   Tabs,
-  Image,
-  Row,
-  Col,
-  Typography,
-  Button,
   Tooltip,
-  Progress,
-  Select,
+  Typography,
   message,
-  Checkbox,
 } from "antd";
+import dayjs from "dayjs";
+import React, { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
 
 const { Text } = Typography;
-const { TabPane } = Tabs;
-import {
-  PlusOutlined,
-  ClockCircleTwoTone,
-  CheckCircleOutlined,
-  CheckCircleTwoTone,
-  ExclamationCircleOutlined,
-} from "@ant-design/icons";
-import { useParams } from "react-router-dom";
 const { Sider } = Layout;
-import dayjs from "dayjs";
 
 //import from src
+import GetDataFromRoute from "../compoment/GetDataFromBackend";
 import Logo from "../compoment/Logo";
 import MenuList from "../compoment/MenuList";
-import GetDataFromRoute from "../compoment/GetDataFromBackend";
-import CameraCapture from "../compoment/CameraCapture";
 
 //CSS
+import api from "../api";
 import "../styles/Attendent.css";
 import "../styles/Sidebar.css";
-import api from "../api";
 
 function Attendent() {
   let params = useParams();
@@ -53,7 +47,6 @@ function Attendent() {
   const [duration, setDuration] = useState(["", 0]);
   const [indexTimeFrame, setIndexTimeFrame] = useState(0);
   const [isCaturing, setIsCapturing] = useState(false);
-  const cameraRef = useRef(null);
 
   const [isRunning, setIsRunning] = useState(false);
   const [time, setTime] = useState(0);
@@ -119,11 +112,13 @@ function Attendent() {
     }
 
     if (
-      (duration[1] - time) / 1000 ==
+      ((duration[1] - time) / 1000 ==
       Math.floor(((duration[1] / 15) * indexTimeFrame) / 1000) &&
       indexTimeFrame <= 15 &&
       isRunning &&
-      timeFrames.length < 15
+      timeFrames.length < 15 &&
+      (duration[1] - time) / 1000 != 0) ||
+      ((duration[1] - time) / 1000 == 1)
     ) {
       captureImage();
       setIndexTimeFrame(indexTimeFrame + 1);
@@ -450,7 +445,7 @@ function Attendent() {
                   }}
                 ></video>
               </Row>
-              <Row style={{ width: "100%" }}>
+              <Row style={{ width: "100%", justifyContent:"center" }}>
                 <Col>
                   <Select
                     value={selectedDeviceId}
@@ -460,9 +455,9 @@ function Attendent() {
                     placeholder="Select a camera"
                   />
                 </Col>
-                <Col>
+                {/* <Col>
                   <Button onClick={captureImage}>take picture</Button>
-                </Col>
+                </Col> */}
               </Row>
               <canvas
                 ref={canvasRef}

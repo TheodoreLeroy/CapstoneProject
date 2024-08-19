@@ -190,7 +190,7 @@ function Home() {
             </div>
           </Content>
           <Footer style={{ textAlign: "center" }}>
-            Attendance System ©2024 Created by YourName
+            Attendance System ©2024 Created by NHAnh, VTPhuc, LMHieu
           </Footer>
         </Layout>
 
@@ -213,7 +213,7 @@ function Home() {
                 { required: true, message: "Please input the class name!" },
               ]}
             >
-              <Input onChange={(e) => setClassName(e.target.defaultValue)} />
+              <Input onChange={(e) => setClassName(e.target.value)} />
             </Form.Item>
             <Form.Item
               name="semester"
@@ -222,7 +222,7 @@ function Home() {
                 { required: true, message: "Please input the Semester!" },
               ]}
             >
-              <Input onChange={(e) => setSemester(e.target.defaultValue)} />
+              <Input onChange={(e) => setSemester(e.target.value)} />
             </Form.Item>
           </Form>
         </Modal>
