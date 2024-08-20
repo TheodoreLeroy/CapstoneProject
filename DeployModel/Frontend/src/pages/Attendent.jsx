@@ -1,5 +1,5 @@
 //import from libarary
-import { ClockCircleTwoTone } from "@ant-design/icons";
+import { ClockCircleTwoTone, CheckCircleOutlined } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -40,11 +40,12 @@ function Attendent() {
   const [slotInfomation, setSlotInfomation] = useState([]);
   const [timeFrames, setTimeFrame] = useState([]);
   const [studentsInOneFrame, setStudentsInOneFrame] = useState([]);
+  const [log, setLog] = useState([]);
+
   const [isChangingStatus, setIsChangingStatus] = useState(false);
 
   const [duration, setDuration] = useState(["", 0]);
   const [indexTimeFrame, setIndexTimeFrame] = useState(0);
-  const [isCaturing, setIsCapturing] = useState(false);
 
   const [isRunning, setIsRunning] = useState(false);
   const [time, setTime] = useState(0);
@@ -55,6 +56,7 @@ function Attendent() {
     getSlot();
     getStudent();
     getTimeFrame();
+    getLog();
   }, []);
 
   // ===================================================== GET DATA =====================================================
@@ -92,11 +94,25 @@ function Attendent() {
     );
     setTimeFrame(timeFrameData);
   };
+
+  const getLog = async () => {
+    const logData = await GetDataFromRoute(
+      `log${params.idSlot}/`
+    );
+    setLog(logData);
+  };
+
+  // ====================================================== progress bar ======================================================
+  const progressPercent =
+    (!(duration[1] > 0) || isRunning) ? 100 - (time / duration[1]) * 100 : 0;
+  console.log(progressPercent);
+
+
   // ===================================================== TIMER =====================================================
   useEffect(() => {
     let interval;
 
-    if (isRunning && time > 0) {
+    if (isRunning && time > 0 && timeFrames.length < 15) {
       interval = setInterval(() => {
         setTime((prevTime) => {
           if (prevTime <= 1000) {
@@ -104,9 +120,14 @@ function Attendent() {
             setIsRunning(false);
             return 0;
           }
+          console.log("time: ", duration[1] - time, "Next time: ", Math.floor(((duration[1] / 15) * indexTimeFrame) / 1000));
+
           return prevTime - 1000;
         });
       }, 1000); // Update time every second
+    } else if (timeFrames.length <= 15) {
+      setTime(0)
+      stopCamera()
     }
 
     if (
@@ -122,6 +143,7 @@ function Attendent() {
       setIndexTimeFrame(indexTimeFrame + 1);
     } else if (indexTimeFrame >= 15 || timeFrames.length >= 15) {
       stopCamera();
+      getLog();
       setIndexTimeFrame(indexTimeFrame + 1);
     }
 
@@ -141,12 +163,61 @@ function Attendent() {
     return `${hours}:${minutes}:${seconds}`;
   };
 
+
+  // ====================================================== handle click ======================================================
+  const handleTabClick = async (key) => {
+    console.log("Key: ", key);
+
+    if (key != 0) {
+      const data = await GetDataFromRoute(`timeFrame${key}/`);
+      const studentIds = data.map((item) => item.student_id);
+
+      setStudentsInOneFrame(
+        students.filter((student) => studentIds.includes(student.student_id))
+      );
+    }
+  };
+
+  const handleClockClick = async () => {
+    setIsRunning(!isRunning);
+    if (isRunning) {
+      setIndexTimeFrame(0);
+    }
+    setTimer();
+  };
+
+  const handleStatusClick = async () => {
+    if (!isChangingStatus) {
+      setIsChangingStatus(!isChangingStatus);
+    }
+    console.log(isChangingStatus);
+  };
+
+  const handleSaveButton = async () => {
+    setIsChangingStatus(!isChangingStatus);
+    console.log(isChangingStatus);
+  };
+
   // ====================================================== data source ======================================================
+
+  const attendStatusRender = (student) => {
+    if (log.length == 0) {
+      return <p style={{ color: "red" }}> not yet </p>
+    }
+    const status = log.find(log => log.student_id === student.student_id);
+    if (!isChangingStatus) {
+      return status.attend_status ? <p style={{ color: "green" }}> attendent </p> : <p style={{ color: "red" }}> absent </p>
+    } else {
+      return <Checkbox defaultChecked={status.attend_status} onClick={handleStatusClick}>Attendent</Checkbox>
+    }
+
+  }
   const dataSource =
     students?.map((student) => ({
       name: student.name,
       ID: student.student_id,
       picture: <Image width={200} src={student.image} />, // Adjust based on your student object structure
+      attendStatusData: (attendStatusRender(student)),
     })) || [];
   const dataSourceAtOneFrame =
     studentsInOneFrame?.map((student) => ({
@@ -156,7 +227,9 @@ function Attendent() {
       attendStatus: "attentdent",
     })) || [];
 
-  const tableStudent = (dataSource) => {
+
+
+  const tableAllStudent = () => {
     return (
       <>
         <Table
@@ -181,11 +254,8 @@ function Attendent() {
             },
             {
               title: "Attend status",
-              dataIndex: "attendStatus",
-              key: "attendStatus",
-              render: () => (
-                <Checkbox onClick={handleStatusClick}>Attendent</Checkbox>
-              ),
+              dataIndex: "attendStatusData",
+              key: "attendStatusData",
             },
           ]}
           dataSource={dataSource}
@@ -193,56 +263,42 @@ function Attendent() {
       </>
     );
   };
-
-  // ====================================================== handle click ======================================================
-  const handleTabClick = async (key) => {
-    console.log("Key: ", key);
-
-    if (key != 0) {
-      const data = await GetDataFromRoute(`timeFrame${key}/`);
-      const studentIds = data.map((item) => item.student_id);
-
-      setStudentsInOneFrame(
-        students.filter((student) => studentIds.includes(student.student_id))
-      );
-      console.log("studentsInOneFrame: ", studentsInOneFrame);
-      console.log("studentIds: ", studentIds);
-    }
+  const tableStudent = () => {
+    return (
+      <>
+        <Table
+          columns={[
+            {
+              title: "Name",
+              dataIndex: "name",
+              key: "name",
+            },
+            {
+              title: "ID",
+              dataIndex: "ID",
+              key: "ID",
+            },
+            {
+              title: "Picture",
+              dataIndex: "picture",
+              key: "picture",
+              render: (image) => (
+                <div style={{ textAlign: "center" }}>{image}</div>
+              ),
+            },
+          ]}
+          dataSource={dataSourceAtOneFrame}
+        ></Table>
+      </>
+    );
   };
 
-  const handleClockClick = async () => {
-    setIsRunning(!isRunning);
-    if (isRunning) {
-      stopCamera();
-      setIndexTimeFrame(0);
-    } else {
-      startCamera();
-    }
-    setTimer();
-  };
 
-  const handleStatusClick = async () => {
-    if (!isChangingStatus) {
-      setIsChangingStatus(!isChangingStatus);
-    }
-    console.log(isChangingStatus);
-  };
-
-  const handleSaveButton = async () => {
-    if (isChangingStatus) {
-      setIsChangingStatus(!isChangingStatus);
-    }
-    console.log(isChangingStatus);
-  };
-
-  // ====================================================== progress bar ======================================================
-  const progressPercent =
-    duration[1] > 0 ? 100 - (time / duration[1]) * 100 : 0;
 
   // ====================================================== Camera ======================================================
   const [devices, setDevices] = useState([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState(null);
-  const [imageSrc, setImageSrc] = useState(null);
+  const [imageSrc] = useState(null);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
@@ -257,7 +313,13 @@ function Attendent() {
       setSelectedDeviceId(videoDevices[0]?.deviceId); // Default to the first camera
     };
     getDevices();
+    startCamera();
   }, []);
+
+  useEffect(() => {
+    stopCamera();
+    startCamera();
+  }, [selectedDeviceId])
 
   const startCamera = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -344,20 +406,24 @@ function Attendent() {
               bordered={false}
               style={{ minWidth: "500px", paddingBottom: "0px" }}
               extra={
-                <Tooltip title={!isRunning ? "Start slot" : "End slot"}>
+                <Tooltip title={timeFrames.length >= 15
+                  ? "Enought time frames" : !isRunning ? "Start slot" : "End slot"}>
                   <Button
+                    disabled={timeFrames.length >= 15}
                     type="primary"
-                    icon={
-                      <ClockCircleTwoTone
-                        twoToneColor={!isRunning ? "#1677ff" : "#0ADF08"}
-                      />
+                    icon={timeFrames.length >= 15 ?
+                      <CheckCircleOutlined /> :
+                      <ClockCircleTwoTone />
+
                     }
                     shape="circle"
                     onClick={handleClockClick}
                     style={
-                      !isRunning
-                        ? { backgroundColor: "#1677ff" }
-                        : { backgroundColor: "#0ADF08" }
+                      timeFrames.length >= 15
+                        ? { backgroundColor: "#0ADF08", borderColor: "#0ADF08" }
+                        : !isRunning
+                          ? { backgroundColor: "#1677ff", borderColor: "#1677ff" }
+                          : { backgroundColor: "#0ADF08", borderColor: "#0ADF08" }
                     }
                   ></Button>
                 </Tooltip>
@@ -389,11 +455,11 @@ function Attendent() {
                 <Col span={16}>
                   <Text>
                     {dayjs(slotInfomation.time_start, "HH:mm:ss").format(
-                      "HH:mm A"
+                      "HH:mm"
                     )}{" "}
                     -{" "}
                     {dayjs(slotInfomation.time_end, "HH:mm:ss").format(
-                      "HH:mm A"
+                      "HH:mm"
                     )}
                   </Text>
                 </Col>
@@ -414,7 +480,6 @@ function Attendent() {
                 <Col span={16}>
                   <Progress
                     percent={progressPercent}
-                    strokeColor="rgb(24, 144, 255)"
                     style={{ marginTop: "10px", marginBottom: "10px" }}
                     showInfo={false}
                   />
@@ -423,6 +488,7 @@ function Attendent() {
             </Card>
           </Col>
           <Col>
+            {/* ====================================================== camera ====================================================== */}
             <Card
               title="Camera"
               style={{ width: "95%", margin: "10px", padding: "10px" }}
@@ -444,7 +510,9 @@ function Attendent() {
                 <Col>
                   <Select
                     value={selectedDeviceId}
-                    onChange={(value) => setSelectedDeviceId(value)}
+                    onChange={(value) => {
+                      setSelectedDeviceId(value);
+                    }}
                     options={options}
                     style={{ width: 200 }} // Adjust the width as needed
                     placeholder="Select a camera"
@@ -475,11 +543,11 @@ function Attendent() {
             width: "80%",
           }}
           tabBarExtraContent={
-            isChangingStatus && <Button onClick={handleSaveButton}>Save</Button>
+            <Button onClick={handleSaveButton}>{isChangingStatus ? "Save" : "Edit"}</Button>
           }
         >
           <Tabs.TabPane tab={"All student"} key={0}>
-            {tableStudent(dataSource)}
+            {tableAllStudent(dataSource)}
           </Tabs.TabPane>
           {timeFrames?.map((eachTimeFrame, index) => (
             <Tabs.TabPane tab={index + 1} key={eachTimeFrame.id}>

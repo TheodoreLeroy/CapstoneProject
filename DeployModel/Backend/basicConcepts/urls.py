@@ -55,6 +55,8 @@ urlpatterns = [
          views.GetTimeFrame.as_view(), name="time-frames-of-slot"),
     path("timeFrame<int:timeFrameId>/",
          views.GetAttendentAtOneFrame.as_view(), name="a-time-frames-of-slot"),
+     path("log<int:slotId>/",
+         views.GetLog.as_view(), name="log-of-slot"),
     # attentdent
     # path("class<int:classId>/slot<int:classId>/", views.SlotInfomationFromIdClass.as_view(), name="slot-information-from-one-class"),
 ]

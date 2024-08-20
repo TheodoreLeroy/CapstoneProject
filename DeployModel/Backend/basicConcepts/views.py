@@ -1,27 +1,18 @@
-import cv2
-from django.shortcuts import render, redirect
 from rest_framework import generics
 from .models import *
 from .serializers import *
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import NotFound
-from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
-from datetime import datetime, timedelta
+from datetime import datetime
 from PIL import Image
 from io import BytesIO
-from django.core.files.base import ContentFile
 import os
 import requests
 import torch
-import threading
-import time
-from datetime import datetime, timedelta
-from torchvision import models, transforms
+from datetime import datetime
 from sklearn.metrics.pairwise import cosine_similarity
-import matplotlib.pyplot as plt
-import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from django.utils import timezone
 import io
@@ -441,8 +432,7 @@ class GetTimeFrame(generics.ListCreateAPIView):
             else:
                 print(f'Errors: {logs.errors}')
 
-    def Caculate_attend_percent(self, log_instance, slot_id, interval=15):
-        print('ji')
+    def Caculate_attend_percent(self, log_instance, slot_id):
         frame_instance = AttendentStudentsAtOneFrame.objects.filter(
             slot=slot_id)
         slot_instance = Slot.objects.get(
@@ -453,8 +443,7 @@ class GetTimeFrame(generics.ListCreateAPIView):
         )
 
         duration = self.getDuration(slot_instance)
-        total_frames = abs(duration/interval)
-        print(duration / interval)
+        total_frames = 15
         unique_student_ids = frame_instance.values_list(
             'student_id', flat=True)
         id_counts = Counter(unique_student_ids)
@@ -511,6 +500,12 @@ class GetAttendentAtOneFrame(generics.ListAPIView):
         id = self.kwargs.get('timeFrameId')
         return AttendentStudentsAtOneFrame.objects.filter(time_frame_id=id)
 
+class GetLog(generics.ListAPIView):
+    serializer_class = LogDetail
+
+    def get_queryset(self):
+        id = self.kwargs.get('slotId')
+        return Logs.objects.filter(slot_id=id)
 
 class identify_cosine_similarity:
 
