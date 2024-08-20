@@ -1,0 +1,9 @@
+
+/DeployModel/Backend/src/Model2/env
+/DeployModel/Backend/Data
+/DeployModel/Backend/basicConcepts/__pycache__
+*.sqlite3
+/DeployModel/Backend/db.sqlite3
+/DeployModel/Backend/src/Model2/src
+/DeployModel/Backend/Backend/__pycache__
+*.pyc
