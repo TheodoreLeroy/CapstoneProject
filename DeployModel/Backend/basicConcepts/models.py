@@ -1,13 +1,7 @@
-from django.contrib.auth.models import Group, Permission
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django import forms
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
-from django.dispatch import receiver
-from django.db.models.signals import pre_save, post_save
-import os
 from datetime import datetime
 
 
@@ -15,7 +9,6 @@ from datetime import datetime
 # Create teacher and student group
 # teacher_group, created = Group.objects.get_or_create(name='Teacher')
 # student_group, created = Group.objects.get_or_create(name='Student')
-from pathlib import Path
 
 
 class CustomUser(AbstractUser):
@@ -102,10 +95,7 @@ class TimeFrame(models.Model):
     embedding = models.ImageField(upload_to=student_image_path)
     slot_id = models.ForeignKey(Slot, on_delete=models.CASCADE)
 
-
 # contain all student that model can recognite in one frame. when it have detect face bt can't recognite std_id = null
-
-
 class AttendentStudentsAtOneFrame(models.Model):
     slot = models.IntegerField()
     student_id = models.IntegerField()
@@ -113,8 +103,6 @@ class AttendentStudentsAtOneFrame(models.Model):
         TimeFrame, on_delete=models.CASCADE, related_name='time_frame')
 
 # contain last status of slot
-
-
 class Logs(models.Model):
     slot_id = models.ForeignKey(Slot, on_delete=models.CASCADE)
     student_id = models.ForeignKey(Student, on_delete=models.CASCADE)
