@@ -9,6 +9,7 @@ from datetime import datetime
 from PIL import Image
 from io import BytesIO
 import os
+import shutil
 import requests
 import torch
 from datetime import datetime
@@ -63,7 +64,7 @@ class ClassView(generics.ListCreateAPIView):
             directory_path = directory_path = 'Data/classes/' + \
                 str(class_instance.class_name)
             if os.path.exists(directory_path):
-                os.rmdir(directory_path)
+                shutil.rmtree(directory_path)
             class_instance.delete()
             return Response({'message': 'Class deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
         except Class.DoesNotExist:
