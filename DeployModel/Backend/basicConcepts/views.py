@@ -104,8 +104,6 @@ def handleFilePath(file_path):
     return new_file_path
 
 # get list student - urls: "studentsClass<int:classId>/"
-
-
 class StudentFromClassId(generics.ListCreateAPIView):
     serializer_class = StdSerializers
 
@@ -173,6 +171,13 @@ class StudentFromClassId(generics.ListCreateAPIView):
                     # Send image to external API
                     data = ProcessImageData(
                         image_path)
+                    if len(data["boxes"]) < 1:
+                        student.delete()
+                        return Response("Not found any person in image", status=status.HTTP_400_BAD_REQUEST)
+                    elif len(data["boxes"]) > 1:
+                        student.delete()
+                        return Response("Image contain more than 1 face", status=status.HTTP_400_BAD_REQUEST)
+
                     with open(file_path, 'w') as file:
                         for vector in data['embeddings']:
                             vector_str = ' '.join(map(str, vector))
@@ -181,7 +186,7 @@ class StudentFromClassId(generics.ListCreateAPIView):
                 # Add id field to data
                 respone_data = serializer.data
                 respone_data['ID'] = student.student_id
-                # print(respone_data)
+                print(respone_data)
                 return Response(respone_data, status=status.HTTP_201_CREATED)
             else:
                 print(serializer.errors)

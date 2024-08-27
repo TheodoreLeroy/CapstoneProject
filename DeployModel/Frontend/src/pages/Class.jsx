@@ -241,11 +241,11 @@ function Class() {
     } catch (error) {
       notification.error({
         message: "Error",
-        description: error.message,
+        description: error.response.data,
         placement: "topRight",
         duration: 3,
       });
-      console.log(error);
+      console.log(error.response.data);
     }
   };
   const handleDelete = async (studentId) => {
@@ -425,7 +425,7 @@ function Class() {
             <Input
               onChange={(e) => {
                 console.log(e);
-                
+
                 setNewStudent(e.target.value);
               }}
             />
